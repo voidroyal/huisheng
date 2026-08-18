@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命运歧路｜抉择复盘工作台</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F7F5F0',
+                        ink: '#27272A',
+                        amber: '#C47B4B',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Vue3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            background-color: #F7F5F0;
+            color: #27272A;
+        }
+
+        /* 原有时间线动画样式（详情页用） */
+        .ytl {
+            display: block;
+            width: 100%;
+            max-width: 640px;
+        }
+
+        .ytl-dot {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: ytl-pop 0.35s ease-out both;
+        }
+
+        .ytl-amber {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: ytl-draw 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.05s forwards;
+        }
+
+        .ytl-gray {
+            transform-box: fill-box;
+            transform-origin: 0 50%;
+            transform: scaleX(0);
+            animation: ytl-draw-mask 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.18s forwards;
+        }
+
+        .ytl-flag {
+            transform-box: fill-box;
+            transform-origin: 0 100%;
+            animation: ytl-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s both;
+        }
+
+        /* 新增：全局总时间线小型Y分叉动画样式 */
+        .ytl-small {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .ytl-dot-small {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: ytl-pop 0.35s ease-out both;
+        }
+
+        .ytl-amber-small {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: ytl-draw 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.05s forwards;
+        }
+
+        .ytl-gray-small {
+            transform-box: fill-box;
+            transform-origin: 0 50%;
+            transform: scaleX(0);
+            animation: ytl-draw-mask 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.18s forwards;
+        }
+
+        .ytl-flag-small {
+            transform-box: fill-box;
+            transform-origin: 0 100%;
+            animation: ytl-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s both;
+        }
+
+        @keyframes ytl-draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes ytl-draw-mask {
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes ytl-pop {
+            from {
+                opacity: 0;
+                transform: scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ytl-amber,
+            .ytl-gray,
+            .ytl-flag,
+            .ytl-dot,
+            .ytl-amber-small,
+            .ytl-gray-small,
+            .ytl-flag-small,
+            .ytl-dot-small {
+                animation: none;
+            }
+            .ytl-amber,
+            .ytl-amber-small {
+                stroke-dashoffset: 0;
+            }
+            .ytl-gray,
+            .ytl-gray-small {
+                transform: scaleX(1);
+            }
+            .ytl-flag,
+            .ytl-flag-small,
+            .ytl-dot,
+            .ytl-dot-small {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- 全局导航栏 -->
+        <header v-if="currentPage !== 'create' && currentPage !== 'detail'" class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200">
+            <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+                <button @click="goHome" class="text-xl font-bold text-amber hover:opacity-80 transition">命运歧路</button>
+                <nav class="flex gap-3">
+                    <!-- 新增全局总时间线导航项 -->
+                    <button @click="currentPage = 'timeline'" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">全局总时间线</button>
+                    <button @click="currentPage = 'create'" class="px-4 py-1.5 bg-amber text-white rounded-md hover:bg-amber/90 transition text-sm font-medium">新建抉择</button>
+                    <button @click="currentPage = 'about'" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">关于</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 画廊首页（原有逻辑完全保留） -->
+        <main v-if="currentPage === 'gallery'" class="flex-1 max-w-6xl mx-auto px-4 py-8 w-full">
+            <!-- 空状态 -->
+            <div v-if="records.length === 0" class="text-center py-20">
+                <p class="text-gray-500 text-lg mb-6">暂无抉择记录，点击右上角「新建」写下你的第一个选择吧。</p>
+                <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+            </div>
+
+            <!-- 卡片网格 -->
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="record in records" :key="record.id" @click="goToDetail(record.id)"
+                    class="bg-white rounded-lg shadow-sm p-5 hover:shadow-md transition cursor-pointer border border-gray-100">
+                    <h3 class="text-lg font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-3">{{ formatDate(record.createDate) }}</p>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <span class="font-medium">选项A：</span>{{ record.optionAName }}
+                            <p class="text-xs text-gray-600 mt-0.5">预期｜{{ record.expectA }}</p>
+                            <p class="text-xs text-gray-600">现实｜{{ record.resultA }}</p>
+                        </div>
+                        <div class="text-xs text-gray-500 pt-1">
+                            <span class="font-medium">选项B：</span>{{ record.optionBName }}
+                            <span class="ml-1">· 想象：{{ record.imagineB }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span class="underline decoration-amber decoration-2 underline-offset-4 text-sm">{{ record.endTag }}</span>
+                        <span class="text-xs text-gray-400">点击查看详情</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 新建抉择表单（原有逻辑完全保留，仅修改备注为复盘回顾并新增信心滑块） -->
+        <main v-if="currentPage === 'create'" class="flex-1 max-w-2xl mx-auto px-4 py-8 w-full">
+            <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">新建抉择</h2>
+                    <button @click="goHome" class="text-amber hover:underline text-sm">取消</button>
+                </div>
+                
+                <form @submit.prevent="submitForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">抉择标题 <span class="text-red-500">*</span></label>
+                        <input v-model="form.title" type="text" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">当时面临的处境 <span class="text-red-500">*</span></label>
+                        <textarea v-model="form.situation" required rows="3"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">选项A名称（你选的那条路）<span class="text-red-500">*</span></label>
+                            <input v-model="form.optionAName" type="text" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">选项B名称（没选的那条路）<span class="text-red-500">*</span></label>
+                            <input v-model="form.optionBName" type="text" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">选A时的期望 <span class="text-red-500">*</span></label>
+                            <textarea v-model="form.expectA" required rows="2"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">选A后的真实结果 <span class="text-red-500">*</span></label>
+                            <textarea v-model="form.resultA" required rows="2"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">对B的想象 <span class="text-red-500">*</span></label>
+                        <textarea v-model="form.imagineB" required rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">复盘回顾</label>
+                        <textarea v-model="form.note" rows="3" placeholder="当时为什么会这么选，现实和预期有什么差距，这次经历过后，下次可以注意些什么"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">结局标签</label>
+                        <select v-model="form.endTag"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                            <option value="">请选择结局</option>
+                            <option value="如愿以偿">如愿以偿</option>
+                            <option value="事与愿违">事与愿违</option>
+                            <option value="得失参半">得失参半</option>
+                            <option value="留有遗憾">留有遗憾</option>
+                            <option value="突破转机">突破转机</option>
+                            <option value="归于平常">归于平常</option>
+                            <option value="意料之外">意料之外</option>
+                            <option value="小有收获">小有收获</option>
+                        </select>
+                        <input v-model="form.customEndTag" type="text" placeholder="自定义结局标签(填写后覆盖上方选择)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-3">
+                    </div>
+
+                    <!-- 新增：决策时信心滑块 -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">决策时信心：{{ form.confidence }} 分</label>
+                        <input v-model="form.confidence" type="range" min="0" max="10" step="1"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>毫无把握</span>
+                            <span>极度笃定</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">保存抉择</button>
+                        <button type="button" @click="goHome" class="px-6 py-2.5 border border-ink/20 rounded-md hover:bg-ink/5 transition font-medium">取消</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- 抉择详情页（原有逻辑完全保留，未做任何修改，仅增加信心星级模块） -->
+        <main v-if="currentPage === 'detail' && currentRecord" class="flex-1 max-w-3xl mx-auto px-4 py-8 w-full">
+            <button @click="goHome" class="mb-4 text-amber hover:underline text-sm font-medium flex items-center gap-1">
+                ← 返回画廊
+            </button>
+
+            <div class="bg-white rounded-lg shadow-sm p-6 md:p-8 border border-gray-100">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-1">{{ currentRecord.title }}</h2>
+                        <p class="text-gray-500 text-sm">{{ formatDate(currentRecord.createDate) }}</p>
+                    </div>
+                    <button @click="showDeleteModal = true" class="px-4 py-2 text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition text-sm font-medium whitespace-nowrap">删除此记录</button>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-bold mb-1">处境</h3>
+                        <p class="text-gray-700 whitespace-pre-line">{{ currentRecord.situation }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border-l-2 border-amber pl-4">
+                            <h3 class="font-bold mb-2">选项A：{{ currentRecord.optionAName }}</h3>
+                            <p class="text-sm text-gray-600 mb-1"><span class="font-medium">预期：</span>{{ currentRecord.expectA }}</p>
+                            <p class="text-sm text-gray-600"><span class="font-medium">现实：</span>{{ currentRecord.resultA }}</p>
+                        </div>
+                        <div class="border-l-2 border-gray-300 pl-4">
+                            <h3 class="font-bold mb-2">选项B：{{ currentRecord.optionBName }}</h3>
+                            <p class="text-sm text-gray-600"><span class="font-medium">想象：</span>{{ currentRecord.imagineB }}</p>
+                        </div>
+                    </div>
+
+                    <div v-if="currentRecord.note" class="pt-4 border-t border-gray-100">
+                        <h3 class="font-bold mb-1">复盘回顾</h3>
+                        <p class="text-gray-700 whitespace-pre-line">{{ currentRecord.note }}</p>
+                    </div>
+
+                    <!-- 新增：信心星级对照展示模块 -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                            <span class="text-sm text-gray-600">当时信心：{{ confidenceStars }}</span>
+                            <span class="text-sm text-gray-600">实际结果：<span class="underline decoration-amber decoration-2 underline-offset-4">{{ currentRecord.endTag }}</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Y分叉SVG时间线（原有逻辑完全保留） -->
+                <div class="mt-10 pt-8 border-t border-gray-100">
+                    <h3 class="text-center font-bold mb-6">抉择时间线</h3>
+                    <svg class="ytl mx-auto" viewBox="0 0 640 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <!-- 灰线消散渐变：0 → 66% 不透明，66% → 80% 平滑降到 0，之后保持透明 -->
+                            <linearGradient id="ytlGrayFade" x1="320" y1="290" x2="80" y2="110" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#9ca3af" stop-opacity="1" />
+                                <stop offset="66%" stop-color="#9ca3af" stop-opacity="1" />
+                                <stop offset="80%" stop-color="#9ca3af" stop-opacity="0" />
+                                <stop offset="100%" stop-color="#9ca3af" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- 共享原点圆点 -->
+                        <circle class="ytl-dot" cx="320" cy="290" r="6" fill="#C47B4B" />
+
+                        <!-- 浅灰虚线：从原点向左上生长，走到 2/3 处平滑消散 -->
+                        <g transform="translate(320 290) rotate(216.87)">
+                            <g class="ytl-gray">
+                                <line x1="0" y1="0" x2="300" y2="0"
+                                    stroke="url(#ytlGrayFade)"
+                                    stroke-width="3"
+                                    stroke-dasharray="6 6"
+                                    stroke-linecap="round" />
+                            </g>
+                        </g>
+
+                        <!-- 琥珀粗实线：从原点向右上生长 -->
+                        <line class="ytl-amber"
+                            x1="320" y1="290" x2="560" y2="110"
+                            stroke="#C47B4B"
+                            stroke-width="5"
+                            stroke-linecap="round"
+                            pathLength="100" />
+
+                        <!-- 琥珀线末端的小旗帜 -->
+                        <g class="ytl-flag">
+                            <line class="ytl-flag-pole" x1="560" y1="110" x2="560" y2="56"
+                                stroke="#374151" stroke-width="3" stroke-linecap="round" />
+                            <path class="ytl-flag-cloth" d="M560 56 L606 70 L560 84 Z" fill="#e11d48" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </main>
+
+        <!-- 极简关于页面（原有逻辑完全保留） -->
+        <main v-if="currentPage === 'about'" class="flex-1 max-w-2xl mx-auto px-4 py-16 text-center w-full">
+            <h1 class="text-3xl font-bold mb-4">命运歧路</h1>
+            <p class="text-lg text-gray-600 mb-2">抉择复盘工作台 C版</p>
+            <p class="text-gray-500 mb-8 leading-relaxed">
+                记录你的每一个重要抉择，复盘预期与现实的差异，<br>
+                在分岔路口留下属于你的印记。
+            </p>
+            <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">返回画廊</button>
+        </main>
+
+        <!-- 新增：全局总时间线页面 -->
+        <main v-if="currentPage === 'timeline'" class="flex-1 max-w-4xl mx-auto px-4 py-8 w-full">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold">全局总时间线</h2>
+                <button @click="goHome" class="text-amber hover:underline text-sm font-medium">返回画廊</button>
+            </div>
+
+            <!-- 空状态 -->
+            <div v-if="sortedRecords.length === 0" class="text-center py-20">
+                <p class="text-gray-500 text-lg mb-6">暂无抉择记录，先去创建一条吧。</p>
+                <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+            </div>
+
+            <!-- 纵向主时间轴 -->
+            <div v-else class="relative">
+                <!-- 纵向主时间轴竖线 -->
+                <div class="absolute left-6 md:left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 -translate-x-1/2"></div>
+
+                <!-- 时间轴节点列表 -->
+                <div class="space-y-8">
+                    <div v-for="(record, index) in sortedRecords" :key="record.id"
+                         class="relative flex items-center gap-6 cursor-pointer group"
+                         :class="index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
+                         @click="goToDetail(record.id)">
+                        <!-- 时间轴节点圆点 -->
+                        <div class="absolute left-6 md:left-1/2 w-3 h-3 bg-amber rounded-full -translate-x-1/2 z-10 group-hover:scale-150 transition-transform"></div>
+
+                        <!-- 桌面端日期标记 -->
+                        <div class="hidden md:block w-1/2"
+                             :class="index % 2 === 0 ? 'order-1 text-right pr-8' : 'order-2 text-left pl-8'">
+                            <span class="text-sm text-gray-500">{{ formatDate(record.createDate) }}</span>
+                        </div>
+
+                        <!-- 抉择卡片+小型Y分叉 -->
+                        <div class="ml-12 md:ml-0 md:w-5/12 bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition border border-gray-100"
+                             :class="index % 2 === 0 ? 'order-2 md:mr-auto' : 'order-1 md:ml-auto'">
+                            <h3 class="font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
+                            <p class="text-xs text-gray-500 mb-2 md:hidden">{{ formatDate(record.createDate) }}</p>
+                            <p class="text-sm text-gray-600 mb-2 line-clamp-2">{{ record.situation }}</p>
+                            <span class="underline decoration-amber decoration-2 underline-offset-4 text-xs">{{ record.endTag }}</span>
+                            
+                            <!-- 新增：信心星级小字 -->
+                            <div class="mt-2 text-xs text-gray-500">
+                                当时信心：{{ getConfidenceStarsText(record.confidence) }}
+                            </div>
+
+                            <!-- 小型Y分叉时间线 -->
+                            <div class="mt-3">
+                                <svg class="ytl-small mx-auto" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="ytlGrayFadeSmall" x1="100" y1="100" x2="40" y2="30" gradientUnits="userSpaceOnUse">
+                                            <stop offset="0%" stop-color="#9ca3af" stop-opacity="1" />
+                                            <stop offset="66%" stop-color="#9ca3af" stop-opacity="1" />
+                                            <stop offset="80%" stop-color="#9ca3af" stop-opacity="0" />
+                                            <stop offset="100%" stop-color="#9ca3af" stop-opacity="0" />
+                                        </linearGradient>
+                                    </defs>
+
+                                    <!-- 共享原点圆点 -->
+                                    <circle class="ytl-dot-small" cx="100" cy="100" r="4" fill="#C47B4B" />
+
+                                    <!-- 浅灰虚线：从原点向左上生长，走到 2/3 处平滑消散 -->
+                                    <g transform="translate(100 100) rotate(216.87)">
+                                        <g class="ytl-gray-small">
+                                            <line x1="0" y1="0" x2="90" y2="0"
+                                                stroke="url(#ytlGrayFadeSmall)"
+                                                stroke-width="2"
+                                                stroke-dasharray="4 4"
+                                                stroke-linecap="round" />
+                                        </g>
+                                    </g>
+
+                                    <!-- 琥珀粗实线：从原点向右上生长 -->
+                                    <line class="ytl-amber-small"
+                                        x1="100" y1="100" x2="170" y2="30"
+                                        stroke="#C47B4B"
+                                        stroke-width="3"
+                                        stroke-linecap="round"
+                                        pathLength="100" />
+
+                                    <!-- 琥珀线末端的小旗帜 -->
+                                    <g class="ytl-flag-small">
+                                        <line x1="170" y1="30" x2="170" y2="10"
+                                            stroke="#374151" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M170 10 L190 15 L170 20 Z" fill="#e11d48" />
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 删除确认弹窗（原有逻辑完全保留） -->
+        <div v-if="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                <h3 class="text-lg font-bold mb-2">确认删除</h3>
+                <p class="text-gray-600 mb-6">确定要删除这条抉择记录吗？删除后无法恢复。</p>
+                <div class="flex gap-3 justify-end">
+                    <button @click="showDeleteModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition text-sm font-medium">取消</button>
+                    <button @click="deleteCurrentRecord" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition text-sm font-medium">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================
+        // 本地存储工具函数（原有逻辑完全保留）
+        // ========================
+        const STORAGE_KEY = 'destiny_crossroads_v1';
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        }
+
+        function addRecord(record) {
+            const records = getAllRecords();
+            const newRecord = {
+                ...record,
+                id: generateId(),
+                createDate: new Date().toISOString(),
+            };
+            records.unshift(newRecord);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            return newRecord;
+        }
+
+        function getAllRecords() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                console.error('[命运歧路] 读取记录失败:', e);
+                return [];
+            }
+        }
+
+        function getRecordById(id) {
+            const records = getAllRecords();
+            return records.find(r => r.id === id) ?? null;
+        }
+
+        function deleteRecord(id) {
+            const records = getAllRecords();
+            const index = records.findIndex(r => r.id === id);
+            if (index === -1) return false;
+            records.splice(index, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            return true;
+        }
+
+        // ========================
+        // Vue 应用（原有逻辑完全保留，仅新增信心相关逻辑）
+        // ========================
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentPage: 'gallery',
+                    records: [],
+                    currentRecordId: null,
+                    showDeleteModal: false,
+                    form: {
+                        title: '',
+                        situation: '',
+                        optionAName: '',
+                        expectA: '',
+                        resultA: '',
+                        optionBName: '',
+                        imagineB: '',
+                        note: '',
+                        endTag: '',
+                        customEndTag: '',
+                        confidence: 5,
+                    }
+                };
+            },
+            computed: {
+                currentRecord() {
+                    return this.records.find(r => r.id === this.currentRecordId) ?? null;
+                },
+                // 新增：按创建日期从旧到新排序的全局时间线数据
+                sortedRecords() {
+                    return [...this.records].sort((a, b) => a.createDate.localeCompare(b.createDate));
+                },
+                // 新增：详情页信心星级计算属性，兼容旧数据
+                confidenceStars() {
+                    const conf = this.currentRecord?.confidence;
+                    if (conf === undefined || conf === null || conf === '') {
+                        return '未记录';
+                    }
+                    const num = Number(conf);
+                    if (num <= 2) return '⭐';
+                    if (num <= 4) return '⭐⭐';
+                    if (num <= 6) return '⭐⭐⭐';
+                    if (num <= 8) return '⭐⭐⭐⭐';
+                    return '⭐⭐⭐⭐⭐';
+                }
+            },
+            methods: {
+                goHome() {
+                    this.currentPage = 'gallery';
+                    this.currentRecordId = null;
+                    this.showDeleteModal = false;
+                    this.loadRecords();
+                },
+                goToDetail(id) {
+                    this.currentRecordId = id;
+                    this.currentPage = 'detail';
+                },
+                formatDate(isoString) {
+                    if (!isoString) return '';
+                    const date = new Date(isoString);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+                submitForm() {
+                    const submitData = { ...this.form };
+                    // 优先使用自定义结局标签，覆盖下拉选择
+                    if (submitData.customEndTag && submitData.customEndTag.trim()) {
+                        submitData.endTag = submitData.customEndTag.trim();
+                    }
+                    // 删除临时自定义字段，不存入存储，保证数据结构兼容旧数据
+                    delete submitData.customEndTag;
+                    addRecord(submitData);
+                    this.form = {
+                        title: '',
+                        situation: '',
+                        optionAName: '',
+                        expectA: '',
+                        resultA: '',
+                        optionBName: '',
+                        imagineB: '',
+                        note: '',
+                        endTag: '',
+                        customEndTag: '',
+                        confidence: 5,
+                    };
+                    this.goHome();
+                },
+                deleteCurrentRecord() {
+                    if (this.currentRecordId) {
+                        deleteRecord(this.currentRecordId);
+                        this.showDeleteModal = false;
+                        this.goHome();
+                    }
+                },
+                loadRecords() {
+                    this.records = getAllRecords();
+                },
+                // 新增：全局总时间线信心星级文本，兼容旧数据
+                getConfidenceStarsText(confidence) {
+                    if (confidence === undefined || confidence === null || confidence === '') {
+                        return '未记录';
+                    }
+                    const num = Number(confidence);
+                    if (num <= 2) return '⭐';
+                    if (num <= 4) return '⭐⭐';
+                    if (num <= 6) return '⭐⭐⭐';
+                    if (num <= 8) return '⭐⭐⭐⭐';
+                    return '⭐⭐⭐⭐⭐';
+                }
+            },
+            mounted() {
+                this.loadRecords();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
