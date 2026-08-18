@@ -11,8 +11,8 @@
             theme: {
                 extend: {
                     colors: {
-                        paper: '#F7F5F0',
-                        ink: '#27272A',
+                        paper: '#1E1E26',
+                        ink: '#E8E8F0',
                         amber: '#C47B4B',
                     }
                 }
@@ -22,9 +22,18 @@
     <!-- Vue3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
+        :root {
+            color-scheme: dark;
+        }
+
         body {
-            background-color: #F7F5F0;
-            color: #27272A;
+            background-color: #1E1E26;
+            background-image:
+                radial-gradient(1100px 700px at 75% -10%, rgba(196, 123, 75, 0.07), transparent 60%),
+                radial-gradient(900px 600px at -10% 110%, rgba(226, 184, 142, 0.05), transparent 55%);
+            background-attachment: fixed;
+            color: #E8E8F0;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* 原有时间线动画样式（详情页用） */
@@ -140,6 +149,178 @@
             .ytl-dot-small {
                 opacity: 1;
             }
+        }
+
+        /* ================================================================
+           暗色美术升级（仅覆盖样式外观，不改动任何 HTML 结构 / JS 逻辑 /
+           表单字段 / localStorage / SVG 动画）
+           ================================================================ */
+
+        /* ---- 卡片 / 面板：半透深色磨砂 + 柔和浮层 ---- */
+        .bg-white {
+            background-color: rgba(42, 42, 54, 0.72) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(232, 232, 240, 0.06) !important;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        }
+
+        /* ---- 顶部悬浮导航：深色磨砂 + 底部光影分割 ---- */
+        .bg-white\/80 {
+            background-color: rgba(32, 32, 42, 0.78) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(232, 232, 240, 0.08) !important;
+            box-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ---- 文字色 ---- */
+        .text-gray-400,
+        .text-gray-500,
+        .text-gray-600 {
+            color: #A9A9B8 !important;
+        }
+
+        .text-gray-700 {
+            color: #E8E8F0 !important;
+        }
+
+        .text-amber {
+            color: #E2B88E !important;
+        }
+
+        /* ---- 边框统一为低饱和暗色 ---- */
+        .border-gray-100,
+        .border-gray-200,
+        .border-gray-300 {
+            border-color: rgba(169, 169, 184, 0.16) !important;
+        }
+
+        /* ---- 输入控件：深色底 + 琥珀聚焦高亮 ---- */
+        input[type="text"],
+        textarea,
+        select {
+            background-color: rgba(30, 30, 38, 0.55) !important;
+            color: #E8E8F0 !important;
+            border-radius: 10px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(169, 169, 184, 0.55);
+        }
+
+        select option {
+            background-color: #2A2A36;
+            color: #E8E8F0;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #C47B4B !important;
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.16);
+            outline: none;
+        }
+
+        /* ---- 信心滑块：琥珀圆形拇指 + 深色轨道 ---- */
+        input[type="range"] {
+            background-color: rgba(169, 169, 184, 0.22) !important;
+            accent-color: #C47B4B;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #C47B4B;
+            border: 2px solid #2A2A36;
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.25);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #C47B4B;
+            border: 2px solid #2A2A36;
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.25);
+            cursor: pointer;
+        }
+
+        /* ---- 通用灰底元素（滑块轨道 / 时间轴竖线等） ---- */
+        .bg-gray-200 {
+            background-color: rgba(169, 169, 184, 0.22) !important;
+        }
+
+        .hover\:bg-gray-50:hover {
+            background-color: rgba(169, 169, 184, 0.10) !important;
+        }
+
+        /* ---- 卡片 hover 轻微上浮 + 柔和加深投影 ---- */
+        .hover\:shadow-md:hover {
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+            transform: translateY(-3px);
+        }
+
+        .shadow-sm {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        /* ---- 危险操作：删除按钮统一 #D65C5C 体系 ---- */
+        .text-red-600 {
+            color: #D65C5C !important;
+        }
+
+        .bg-red-600 {
+            background-color: #D65C5C !important;
+        }
+
+        .hover\:bg-red-700:hover {
+            background-color: #B94B4B !important;
+        }
+
+        .hover\:bg-red-50:hover {
+            background-color: rgba(214, 92, 92, 0.12) !important;
+        }
+
+        .border-red-200 {
+            border-color: rgba(214, 92, 92, 0.35) !important;
+        }
+
+        /* ---- 轻量过渡：仅作用于控件，不触碰 SVG 时间线动画 ---- */
+        button,
+        input,
+        textarea,
+        select {
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+                box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        /* ---- 暗色滚动条 ---- */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1E1E26;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3A3A48;
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4A4A5A;
         }
     </style>
 </head>
@@ -322,17 +503,17 @@
                         </div>
                     </div>
 
-                    <div v-if="currentRecord.note" class="pt-4 border-t border-gray-100">
-                        <h3 class="font-bold mb-1">复盘回顾</h3>
-                        <p class="text-gray-700 whitespace-pre-line">{{ currentRecord.note }}</p>
-                    </div>
-
-                    <!-- 新增：信心星级对照展示模块 -->
+                    <!-- 信心星级对照展示模块（移至复盘回顾上方） -->
                     <div class="pt-4 border-t border-gray-100">
                         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                             <span class="text-sm text-gray-600">当时信心：{{ confidenceStars }}</span>
                             <span class="text-sm text-gray-600">实际结果：<span class="underline decoration-amber decoration-2 underline-offset-4">{{ currentRecord.endTag }}</span></span>
                         </div>
+                    </div>
+
+                    <div v-if="currentRecord.note" class="pt-4 border-t border-gray-100">
+                        <h3 class="font-bold mb-1">复盘回顾</h3>
+                        <p class="text-gray-700 whitespace-pre-line">{{ currentRecord.note }}</p>
                     </div>
                 </div>
 
