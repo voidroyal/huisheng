@@ -11,7 +11,7 @@
             theme: {
                 extend: {
                     colors: {
-                        paper: '#1E1E26',
+                        paper: '#171720',
                         ink: '#E8E8F0',
                         amber: '#C47B4B',
                     }
@@ -27,10 +27,11 @@
         }
 
         body {
-            background-color: #1E1E26;
+            background-color: #171720;
             background-image:
-                radial-gradient(1100px 700px at 75% -10%, rgba(196, 123, 75, 0.07), transparent 60%),
-                radial-gradient(900px 600px at -10% 110%, rgba(226, 184, 142, 0.05), transparent 55%);
+                radial-gradient(1400px 900px at 75% -10%, rgba(196, 123, 75, 0.10), transparent 60%),
+                radial-gradient(1100px 800px at -10% 110%, rgba(226, 184, 142, 0.07), transparent 55%),
+                radial-gradient(800px 600px at 50% 50%, rgba(196, 123, 75, 0.03), transparent 70%);
             background-attachment: fixed;
             color: #E8E8F0;
             -webkit-font-smoothing: antialiased;
@@ -152,27 +153,43 @@
         }
 
         /* ================================================================
-           暗色美术升级（仅覆盖样式外观，不改动任何 HTML 结构 / JS 逻辑 /
-           表单字段 / localStorage / SVG 动画）
+           B方案：深色玻璃拟态 glassmorphism（仅 CSS，不改动 HTML / JS / SVG）
            ================================================================ */
 
-        /* ---- 卡片 / 面板：半透深色磨砂 + 柔和浮层 ---- */
+        /* ---- 卡片 / 面板：半透深色磨砂玻璃 + 琥珀细边框 + 多层柔和阴影 ---- */
         .bg-white {
-            background-color: rgba(42, 42, 54, 0.72) !important;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(232, 232, 240, 0.06) !important;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+            background-color: rgba(42, 42, 54, 0.32) !important;
+            backdrop-filter: blur(12px) saturate(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(1.15);
+            border: 1px solid rgba(196, 123, 75, 0.14) !important;
+            border-radius: 16px;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.16),
+                0 8px 32px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
-        /* ---- 顶部悬浮导航：深色磨砂 + 底部光影分割 ---- */
+        /* ---- 顶部悬浮导航：玻璃磨砂 + 底部光影分割 ---- */
         .bg-white\/80 {
-            background-color: rgba(32, 32, 42, 0.78) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(232, 232, 240, 0.08) !important;
-            box-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+            background-color: rgba(23, 23, 32, 0.50) !important;
+            backdrop-filter: blur(12px) saturate(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(1.2);
+            border-bottom: 1px solid rgba(196, 123, 75, 0.12) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+        }
+
+        /* ---- 降级兼容：不支持 backdrop-filter 时回退深色半透明 ---- */
+        @supports not (backdrop-filter: blur(1px)) {
+            .bg-white {
+                background-color: rgba(42, 42, 54, 0.90) !important;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            .bg-white\/80 {
+                background-color: rgba(23, 23, 32, 0.95) !important;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
         }
 
         /* ---- 文字色 ---- */
@@ -194,21 +211,21 @@
         .border-gray-100,
         .border-gray-200,
         .border-gray-300 {
-            border-color: rgba(169, 169, 184, 0.16) !important;
+            border-color: rgba(169, 169, 184, 0.14) !important;
         }
 
-        /* ---- 输入控件：深色底 + 琥珀聚焦高亮 ---- */
+        /* ---- 输入控件：深色半透底 + 琥珀聚焦高亮 ---- */
         input[type="text"],
         textarea,
         select {
-            background-color: rgba(30, 30, 38, 0.55) !important;
+            background-color: rgba(23, 23, 32, 0.45) !important;
             color: #E8E8F0 !important;
-            border-radius: 10px;
+            border-radius: 12px;
         }
 
         input::placeholder,
         textarea::placeholder {
-            color: rgba(169, 169, 184, 0.55);
+            color: rgba(169, 169, 184, 0.5);
         }
 
         select option {
@@ -220,13 +237,13 @@
         textarea:focus,
         select:focus {
             border-color: #C47B4B !important;
-            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.16);
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.18), 0 0 16px rgba(196, 123, 75, 0.12);
             outline: none;
         }
 
         /* ---- 信心滑块：琥珀圆形拇指 + 深色轨道 ---- */
         input[type="range"] {
-            background-color: rgba(169, 169, 184, 0.22) !important;
+            background-color: rgba(169, 169, 184, 0.18) !important;
             accent-color: #C47B4B;
         }
 
@@ -238,7 +255,7 @@
             border-radius: 50%;
             background: #C47B4B;
             border: 2px solid #2A2A36;
-            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.25);
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.22), 0 2px 6px rgba(0, 0, 0, 0.3);
             cursor: pointer;
         }
 
@@ -248,31 +265,41 @@
             border-radius: 50%;
             background: #C47B4B;
             border: 2px solid #2A2A36;
-            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.25);
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.22);
             cursor: pointer;
         }
 
         /* ---- 通用灰底元素（滑块轨道 / 时间轴竖线等） ---- */
         .bg-gray-200 {
-            background-color: rgba(169, 169, 184, 0.22) !important;
+            background-color: rgba(169, 169, 184, 0.18) !important;
         }
 
         .hover\:bg-gray-50:hover {
-            background-color: rgba(169, 169, 184, 0.10) !important;
+            background-color: rgba(169, 169, 184, 0.08) !important;
         }
 
-        /* ---- 卡片 hover 轻微上浮 + 柔和加深投影 ---- */
+        /* ---- 卡片 hover 轻微上浮 + 多层柔和加深投影 ---- */
         .hover\:shadow-md:hover {
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
-            transform: translateY(-3px);
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                0 16px 40px rgba(0, 0, 0, 0.28),
+                0 0 0 1px rgba(196, 123, 75, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+            transform: translateY(-4px);
         }
 
         .shadow-sm {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.18),
+                0 8px 32px rgba(0, 0, 0, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
         .shadow-lg {
-            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5) !important;
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.3),
+                0 24px 64px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
         /* ---- 危险操作：删除按钮统一 #D65C5C 体系 ---- */
@@ -289,20 +316,25 @@
         }
 
         .hover\:bg-red-50:hover {
-            background-color: rgba(214, 92, 92, 0.12) !important;
+            background-color: rgba(214, 92, 92, 0.10) !important;
         }
 
         .border-red-200 {
-            border-color: rgba(214, 92, 92, 0.35) !important;
+            border-color: rgba(214, 92, 92, 0.3) !important;
         }
 
-        /* ---- 轻量过渡：仅作用于控件，不触碰 SVG 时间线动画 ---- */
+        /* ---- 按钮琥珀微光 hover ---- */
+        .bg-amber:hover {
+            box-shadow: 0 0 20px rgba(196, 123, 75, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ---- 轻量过渡：仅作用于控件，绝对不触碰 SVG 时间线动画 ---- */
         button,
         input,
         textarea,
         select {
-            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
-                box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+            transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease,
+                box-shadow 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
         }
 
         /* ---- 暗色滚动条 ---- */
@@ -311,7 +343,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1E1E26;
+            background: #171720;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -428,12 +460,6 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1">复盘回顾</label>
-                        <textarea v-model="form.note" rows="3" placeholder="当时为什么会这么选，现实和预期有什么差距，这次经历过后，下次可以注意些什么"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
-                    </div>
-
-                    <div>
                         <label class="block text-sm font-medium mb-1">结局标签</label>
                         <select v-model="form.endTag"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
@@ -451,7 +477,7 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-3">
                     </div>
 
-                    <!-- 新增：决策时信心滑块 -->
+                    <!-- 决策时信心滑块 -->
                     <div>
                         <label class="block text-sm font-medium mb-2">决策时信心：{{ form.confidence }} 分</label>
                         <input v-model="form.confidence" type="range" min="0" max="10" step="1"
@@ -460,6 +486,13 @@
                             <span>毫无把握</span>
                             <span>极度笃定</span>
                         </div>
+                    </div>
+
+                    <!-- 复盘回顾（表单最底部） -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">复盘回顾</label>
+                        <textarea v-model="form.note" rows="3" placeholder="当时为什么会这么选，现实和预期有什么差距，这次经历过后，下次可以注意些什么"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
                     </div>
 
                     <div class="flex gap-3 pt-2">
