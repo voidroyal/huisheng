@@ -11,7 +11,7 @@
             theme: {
                 extend: {
                     colors: {
-                        paper: '#171720',
+                        paper: '#1E1E26',
                         ink: '#E8E8F0',
                         amber: '#C47B4B',
                     }
@@ -27,11 +27,10 @@
         }
 
         body {
-            background-color: #171720;
+            background-color: #1E1E26;
             background-image:
-                radial-gradient(1400px 900px at 75% -10%, rgba(196, 123, 75, 0.10), transparent 60%),
-                radial-gradient(1100px 800px at -10% 110%, rgba(226, 184, 142, 0.07), transparent 55%),
-                radial-gradient(800px 600px at 50% 50%, rgba(196, 123, 75, 0.03), transparent 70%);
+                radial-gradient(1200px 800px at 75% -10%, rgba(196, 123, 75, 0.06), transparent 60%),
+                radial-gradient(1000px 700px at -10% 110%, rgba(226, 184, 142, 0.04), transparent 55%);
             background-attachment: fixed;
             color: #E8E8F0;
             -webkit-font-smoothing: antialiased;
@@ -153,43 +152,30 @@
         }
 
         /* ================================================================
-           B方案：深色玻璃拟态 glassmorphism（仅 CSS，不改动 HTML / JS / SVG）
+           A方案：稳妥比赛向暗色 UI（仅 CSS，不改动 HTML / JS / SVG）
+           克制光影卡片风格，不使用 backdrop-filter 强磨砂
            ================================================================ */
 
-        /* ---- 卡片 / 面板：半透深色磨砂玻璃 + 琥珀细边框 + 多层柔和阴影 ---- */
+        /* ---- 卡片 / 面板：深色实色底 + 柔和外投影 + 细微内阴影 ---- */
         .bg-white {
-            background-color: rgba(42, 42, 54, 0.32) !important;
-            backdrop-filter: blur(12px) saturate(1.15);
-            -webkit-backdrop-filter: blur(12px) saturate(1.15);
-            border: 1px solid rgba(196, 123, 75, 0.14) !important;
-            border-radius: 16px;
+            background-color: #2A2A36 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(196, 123, 75, 0.10) !important;
+            border-radius: 12px;
             box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.16),
-                0 8px 32px rgba(0, 0, 0, 0.20),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+                0 2px 8px rgba(0, 0, 0, 0.22),
+                0 4px 16px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
         }
 
-        /* ---- 顶部悬浮导航：玻璃磨砂 + 底部光影分割 ---- */
+        /* ---- 顶部悬浮导航：深色 + 底部光影分割 ---- */
         .bg-white\/80 {
-            background-color: rgba(23, 23, 32, 0.50) !important;
-            backdrop-filter: blur(12px) saturate(1.2);
-            -webkit-backdrop-filter: blur(12px) saturate(1.2);
-            border-bottom: 1px solid rgba(196, 123, 75, 0.12) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
-        }
-
-        /* ---- 降级兼容：不支持 backdrop-filter 时回退深色半透明 ---- */
-        @supports not (backdrop-filter: blur(1px)) {
-            .bg-white {
-                background-color: rgba(42, 42, 54, 0.90) !important;
-                backdrop-filter: none;
-                -webkit-backdrop-filter: none;
-            }
-            .bg-white\/80 {
-                background-color: rgba(23, 23, 32, 0.95) !important;
-                backdrop-filter: none;
-                -webkit-backdrop-filter: none;
-            }
+            background-color: rgba(30, 30, 38, 0.92) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-bottom: 1px solid rgba(196, 123, 75, 0.08) !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
         }
 
         /* ---- 文字色 ---- */
@@ -278,28 +264,27 @@
             background-color: rgba(169, 169, 184, 0.08) !important;
         }
 
-        /* ---- 卡片 hover 轻微上浮 + 多层柔和加深投影 ---- */
+        /* ---- 卡片 hover 轻微上浮 + 柔和加深投影 ---- */
         .hover\:shadow-md:hover {
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.2),
-                0 16px 40px rgba(0, 0, 0, 0.28),
-                0 0 0 1px rgba(196, 123, 75, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-            transform: translateY(-4px);
+                0 4px 12px rgba(0, 0, 0, 0.25),
+                0 12px 32px rgba(0, 0, 0, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            transform: translateY(-3px);
         }
 
         .shadow-sm {
             box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.18),
-                0 8px 32px rgba(0, 0, 0, 0.22),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+                0 2px 8px rgba(0, 0, 0, 0.22),
+                0 4px 16px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
         }
 
         .shadow-lg {
             box-shadow:
-                0 8px 24px rgba(0, 0, 0, 0.3),
-                0 24px 64px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+                0 8px 24px rgba(0, 0, 0, 0.32),
+                0 16px 48px rgba(0, 0, 0, 0.38),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
         }
 
         /* ---- 危险操作：删除按钮统一 #D65C5C 体系 ---- */
@@ -323,9 +308,15 @@
             border-color: rgba(214, 92, 92, 0.3) !important;
         }
 
-        /* ---- 按钮琥珀微光 hover ---- */
+        /* ---- 主按钮低饱和琥珀底色 + hover 高亮 ---- */
+        .bg-amber {
+            background-color: #B07045 !important;
+            box-shadow: 0 0 8px rgba(176, 112, 69, 0.10), 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
         .bg-amber:hover {
-            box-shadow: 0 0 20px rgba(196, 123, 75, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
+            background-color: #C47B4B !important;
+            box-shadow: 0 0 14px rgba(196, 123, 75, 0.20), 0 4px 10px rgba(0, 0, 0, 0.22);
         }
 
         /* ---- 轻量过渡：仅作用于控件，绝对不触碰 SVG 时间线动画 ---- */
@@ -343,7 +334,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #171720;
+            background: #1E1E26;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -353,6 +344,70 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: #4A4A5A;
+        }
+
+        /* ================================================================
+           轻动态光影与卡片悬浮层级（仅 CSS，绝对不影响 SVG）
+           ================================================================ */
+
+        /* ---- 画廊卡片入场动画：淡入 + 轻微上浮 ---- */
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid > .bg-white {
+            animation: cardFadeIn 0.45s ease-out both;
+        }
+
+        .grid > .bg-white:nth-child(1) { animation-delay: 0.02s; }
+        .grid > .bg-white:nth-child(2) { animation-delay: 0.08s; }
+        .grid > .bg-white:nth-child(3) { animation-delay: 0.14s; }
+        .grid > .bg-white:nth-child(4) { animation-delay: 0.20s; }
+        .grid > .bg-white:nth-child(5) { animation-delay: 0.26s; }
+        .grid > .bg-white:nth-child(6) { animation-delay: 0.32s; }
+
+        /* 表单 / 详情面板入场（更温和） */
+        @keyframes panelFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        main > .bg-white {
+            animation: panelFadeIn 0.35s ease-out both;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .grid > .bg-white,
+            main > .bg-white {
+                animation: none;
+            }
+        }
+
+        /* ---- 主按钮样式已在上方统一定义 ---- */
+
+        /* ---- 结局标签 & 信心星星：轻微琥珀文字发光 ---- */
+        .glow-amber {
+            text-shadow: 0 0 8px rgba(196, 123, 75, 0.14);
+        }
+
+        /* ---- 空状态深色卡片 ---- */
+        .empty-glass {
+            background-color: rgba(42, 42, 54, 0.5) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(196, 123, 75, 0.06) !important;
+            border-radius: 12px;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.18),
+                0 4px 16px rgba(0, 0, 0, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
         }
     </style>
 </head>
@@ -374,9 +429,18 @@
         <!-- 画廊首页（原有逻辑完全保留） -->
         <main v-if="currentPage === 'gallery'" class="flex-1 max-w-6xl mx-auto px-4 py-8 w-full">
             <!-- 空状态 -->
-            <div v-if="records.length === 0" class="text-center py-20">
-                <p class="text-gray-500 text-lg mb-6">暂无抉择记录，点击右上角「新建」写下你的第一个选择吧。</p>
-                <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+            <div v-if="records.length === 0" class="text-center py-16">
+                <div class="empty-glass inline-block px-12 py-10">
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none" class="mx-auto mb-4" style="opacity:0.35">
+                        <path d="M28 48 L28 30 M28 30 L14 10 M28 30 L42 10" stroke="#C47B4B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        <circle cx="28" cy="48" r="3" fill="#C47B4B" opacity="0.7"/>
+                        <circle cx="14" cy="10" r="2.5" fill="#9ca3af" opacity="0.4"/>
+                        <circle cx="42" cy="10" r="2.5" fill="#C47B4B" opacity="0.5"/>
+                    </svg>
+                    <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">暂无抉择记录</p>
+                    <p class="text-gray-500 text-sm mb-6">在分岔路口，留下属于你的印记</p>
+                    <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+                </div>
             </div>
 
             <!-- 卡片网格 -->
@@ -388,18 +452,18 @@
                     
                     <div class="space-y-2 text-sm">
                         <div>
-                            <span class="font-medium">选项A：</span>{{ record.optionAName }}
-                            <p class="text-xs text-gray-600 mt-0.5">预期｜{{ record.expectA }}</p>
-                            <p class="text-xs text-gray-600">现实｜{{ record.resultA }}</p>
+                            <span class="font-medium">现实选择：</span>{{ record.optionAName }}
+                            <p class="text-xs text-gray-600 mt-0.5">当时信心｜{{ record.expectA }}</p>
+                            <p class="text-xs text-gray-600">实际结局｜{{ record.resultA }}</p>
                         </div>
                         <div class="text-xs text-gray-500 pt-1">
-                            <span class="font-medium">选项B：</span>{{ record.optionBName }}
+                            <span class="font-medium">假想备选：</span>{{ record.optionBName }}
                             <span class="ml-1">· 想象：{{ record.imagineB }}</span>
                         </div>
                     </div>
 
                     <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span class="underline decoration-amber decoration-2 underline-offset-4 text-sm">{{ record.endTag }}</span>
+                        <span class="underline decoration-amber decoration-2 underline-offset-4 text-sm glow-amber">{{ record.endTag }}</span>
                         <span class="text-xs text-gray-400">点击查看详情</span>
                     </div>
                 </div>
@@ -539,8 +603,8 @@
                     <!-- 信心星级对照展示模块（移至复盘回顾上方） -->
                     <div class="pt-4 border-t border-gray-100">
                         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                            <span class="text-sm text-gray-600">当时信心：{{ confidenceStars }}</span>
-                            <span class="text-sm text-gray-600">实际结果：<span class="underline decoration-amber decoration-2 underline-offset-4">{{ currentRecord.endTag }}</span></span>
+                            <span class="text-sm text-gray-600 glow-amber">当时信心：{{ confidenceStars }}</span>
+                            <span class="text-sm text-gray-600">实际结果：<span class="underline decoration-amber decoration-2 underline-offset-4 glow-amber">{{ currentRecord.endTag }}</span></span>
                         </div>
                     </div>
 
@@ -616,9 +680,18 @@
             </div>
 
             <!-- 空状态 -->
-            <div v-if="sortedRecords.length === 0" class="text-center py-20">
-                <p class="text-gray-500 text-lg mb-6">暂无抉择记录，先去创建一条吧。</p>
-                <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+            <div v-if="sortedRecords.length === 0" class="text-center py-16">
+                <div class="empty-glass inline-block px-12 py-10">
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none" class="mx-auto mb-4" style="opacity:0.35">
+                        <path d="M28 48 L28 30 M28 30 L14 10 M28 30 L42 10" stroke="#C47B4B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        <circle cx="28" cy="48" r="3" fill="#C47B4B" opacity="0.7"/>
+                        <circle cx="14" cy="10" r="2.5" fill="#9ca3af" opacity="0.4"/>
+                        <circle cx="42" cy="10" r="2.5" fill="#C47B4B" opacity="0.5"/>
+                    </svg>
+                    <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">暂无抉择记录</p>
+                    <p class="text-gray-500 text-sm mb-6">先去创建一条吧</p>
+                    <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+                </div>
             </div>
 
             <!-- 纵向主时间轴 -->
@@ -647,10 +720,10 @@
                             <h3 class="font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
                             <p class="text-xs text-gray-500 mb-2 md:hidden">{{ formatDate(record.createDate) }}</p>
                             <p class="text-sm text-gray-600 mb-2 line-clamp-2">{{ record.situation }}</p>
-                            <span class="underline decoration-amber decoration-2 underline-offset-4 text-xs">{{ record.endTag }}</span>
+                            <span class="underline decoration-amber decoration-2 underline-offset-4 text-xs glow-amber">{{ record.endTag }}</span>
                             
                             <!-- 新增：信心星级小字 -->
-                            <div class="mt-2 text-xs text-gray-500">
+                            <div class="mt-2 text-xs text-gray-500 glow-amber">
                                 当时信心：{{ getConfidenceStarsText(record.confidence) }}
                             </div>
 
