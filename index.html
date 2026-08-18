@@ -11,7 +11,7 @@
             theme: {
                 extend: {
                     colors: {
-                        paper: '#1E1E26',
+                        paper: '#171720',
                         ink: '#E8E8F0',
                         amber: '#C47B4B',
                     }
@@ -27,10 +27,11 @@
         }
 
         body {
-            background-color: #1E1E26;
+            background-color: #171720;
             background-image:
-                radial-gradient(1200px 800px at 75% -10%, rgba(196, 123, 75, 0.06), transparent 60%),
-                radial-gradient(1000px 700px at -10% 110%, rgba(226, 184, 142, 0.04), transparent 55%);
+                radial-gradient(1300px 850px at 75% -10%, rgba(196, 123, 75, 0.09), transparent 60%),
+                radial-gradient(1000px 700px at -10% 110%, rgba(226, 184, 142, 0.06), transparent 55%),
+                radial-gradient(700px 500px at 50% 50%, rgba(196, 123, 75, 0.025), transparent 70%);
             background-attachment: fixed;
             color: #E8E8F0;
             -webkit-font-smoothing: antialiased;
@@ -152,30 +153,49 @@
         }
 
         /* ================================================================
-           A方案：稳妥比赛向暗色 UI（仅 CSS，不改动 HTML / JS / SVG）
-           克制光影卡片风格，不使用 backdrop-filter 强磨砂
+           B方案：深色玻璃拟态 glassmorphism（仅 CSS，不改动 HTML / JS / SVG）
            ================================================================ */
 
-        /* ---- 卡片 / 面板：深色实色底 + 柔和外投影 + 细微内阴影 ---- */
+        /* ---- 卡片 / 面板：半透磨砂玻璃 + 琥珀细边框 + 多层柔和悬浮阴影 ---- */
         .bg-white {
-            background-color: #2A2A36 !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border: 1px solid rgba(196, 123, 75, 0.10) !important;
-            border-radius: 12px;
+            background-color: rgba(42, 42, 54, 0.32) !important;
+            backdrop-filter: blur(12px) saturate(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(1.15);
+            border: 1px solid rgba(196, 123, 75, 0.14) !important;
+            border-radius: 16px;
             box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.22),
-                0 4px 16px rgba(0, 0, 0, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+                0 2px 8px rgba(0, 0, 0, 0.16),
+                0 8px 32px rgba(0, 0, 0, 0.20),
+                0 0 0 1px rgba(196, 123, 75, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
-        /* ---- 顶部悬浮导航：深色 + 底部光影分割 ---- */
+        /* ---- 顶部悬浮导航：磨砂玻璃 + 底部光影分割 ---- */
         .bg-white\/80 {
-            background-color: rgba(30, 30, 38, 0.92) !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border-bottom: 1px solid rgba(196, 123, 75, 0.08) !important;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            background-color: rgba(23, 23, 32, 0.50) !important;
+            backdrop-filter: blur(12px) saturate(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(1.2);
+            border-bottom: 1px solid rgba(196, 123, 75, 0.12) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+        }
+
+        /* ---- 降级兼容：不支持 backdrop-filter 时回退深色实底卡片 ---- */
+        @supports not (backdrop-filter: blur(1px)) {
+            .bg-white {
+                background-color: rgba(42, 42, 54, 0.92) !important;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            .bg-white\/80 {
+                background-color: rgba(23, 23, 32, 0.95) !important;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            .empty-glass {
+                background-color: rgba(42, 42, 54, 0.90) !important;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
         }
 
         /* ---- 文字色 ---- */
@@ -264,27 +284,31 @@
             background-color: rgba(169, 169, 184, 0.08) !important;
         }
 
-        /* ---- 卡片 hover 轻微上浮 + 柔和加深投影 ---- */
+        /* ---- 卡片 hover 轻微上浮 + 琥珀微光 + 多层柔和加深投影 ---- */
         .hover\:shadow-md:hover {
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.25),
-                0 12px 32px rgba(0, 0, 0, 0.22),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-            transform: translateY(-3px);
+                0 4px 12px rgba(0, 0, 0, 0.20),
+                0 16px 40px rgba(0, 0, 0, 0.24),
+                0 0 0 1px rgba(196, 123, 75, 0.10),
+                0 0 24px rgba(196, 123, 75, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+            transform: translateY(-4px);
         }
 
         .shadow-sm {
             box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.22),
-                0 4px 16px rgba(0, 0, 0, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+                0 2px 8px rgba(0, 0, 0, 0.16),
+                0 8px 32px rgba(0, 0, 0, 0.20),
+                0 0 0 1px rgba(196, 123, 75, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
         .shadow-lg {
             box-shadow:
-                0 8px 24px rgba(0, 0, 0, 0.32),
-                0 16px 48px rgba(0, 0, 0, 0.38),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+                0 8px 24px rgba(0, 0, 0, 0.28),
+                0 24px 64px rgba(0, 0, 0, 0.36),
+                0 0 0 1px rgba(196, 123, 75, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
         }
 
         /* ---- 危险操作：删除按钮统一 #D65C5C 体系 ---- */
@@ -308,15 +332,15 @@
             border-color: rgba(214, 92, 92, 0.3) !important;
         }
 
-        /* ---- 主按钮低饱和琥珀底色 + hover 高亮 ---- */
+        /* ---- 主按钮低饱和琥珀底色 + hover 高亮微光 ---- */
         .bg-amber {
             background-color: #B07045 !important;
-            box-shadow: 0 0 8px rgba(176, 112, 69, 0.10), 0 2px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(176, 112, 69, 0.12), 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .bg-amber:hover {
             background-color: #C47B4B !important;
-            box-shadow: 0 0 14px rgba(196, 123, 75, 0.20), 0 4px 10px rgba(0, 0, 0, 0.22);
+            box-shadow: 0 0 18px rgba(196, 123, 75, 0.22), 0 4px 10px rgba(0, 0, 0, 0.22);
         }
 
         /* ---- 轻量过渡：仅作用于控件，绝对不触碰 SVG 时间线动画 ---- */
@@ -334,7 +358,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1E1E26;
+            background: #171720;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -397,17 +421,18 @@
             text-shadow: 0 0 8px rgba(196, 123, 75, 0.14);
         }
 
-        /* ---- 空状态深色卡片 ---- */
+        /* ---- 空状态磨砂玻璃卡片 ---- */
         .empty-glass {
-            background-color: rgba(42, 42, 54, 0.5) !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border: 1px solid rgba(196, 123, 75, 0.06) !important;
-            border-radius: 12px;
+            background-color: rgba(42, 42, 54, 0.28) !important;
+            backdrop-filter: blur(10px) saturate(1.1);
+            -webkit-backdrop-filter: blur(10px) saturate(1.1);
+            border: 1px solid rgba(196, 123, 75, 0.10) !important;
+            border-radius: 16px;
             box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.18),
-                0 4px 16px rgba(0, 0, 0, 0.14),
-                inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+                0 2px 8px rgba(0, 0, 0, 0.14),
+                0 8px 32px rgba(0, 0, 0, 0.18),
+                0 0 0 1px rgba(196, 123, 75, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
         }
     </style>
 </head>
