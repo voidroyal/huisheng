@@ -434,6 +434,240 @@
                 0 0 0 1px rgba(196, 123, 75, 0.04),
                 inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
         }
+
+        /* ---- 新建抉择：让填写过程更像一次有顺序的回望 ---- */
+        .create-page {
+            max-width: 900px;
+        }
+
+        .create-shell {
+            padding: 2rem;
+        }
+
+        .create-intro {
+            max-width: 650px;
+            margin-bottom: 2.5rem;
+        }
+
+        .create-kicker,
+        .stage-index {
+            color: #E2B88E;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .create-intro h2 {
+            margin-top: 0.65rem;
+            font-size: clamp(1.7rem, 3vw, 2.35rem);
+            line-height: 1.18;
+        }
+
+        .create-intro p {
+            margin-top: 0.8rem;
+            color: #A9A9B8;
+            line-height: 1.75;
+        }
+
+        .create-form {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .create-stage {
+            position: relative;
+            padding: 1.65rem 0 0.35rem;
+            border-top: 1px solid rgba(169, 169, 184, 0.16);
+            animation: createStageIn 0.42s ease-out both;
+        }
+
+        .create-stage:nth-child(2) { animation-delay: 0.06s; }
+        .create-stage:nth-child(3) { animation-delay: 0.12s; }
+        .create-stage:nth-child(4) { animation-delay: 0.18s; }
+        .create-stage:nth-child(5) { animation-delay: 0.24s; }
+
+        .stage-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stage-heading > div:last-child {
+            flex: 1;
+        }
+
+        .stage-title {
+            margin-top: 0.2rem;
+            font-size: 1.12rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .stage-caption {
+            margin-top: 0.35rem;
+            color: #858595;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .stage-fields {
+            display: grid;
+            gap: 1.15rem;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #DADAE4;
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .field-label .field-hint {
+            display: block;
+            margin-top: 0.18rem;
+            color: #858595;
+            font-size: 0.75rem;
+            font-weight: 400;
+        }
+
+        .create-page input[type="text"],
+        .create-page textarea,
+        .create-page select {
+            border-color: rgba(169, 169, 184, 0.19) !important;
+            border-radius: 10px;
+        }
+
+        .create-page textarea {
+            min-height: 88px;
+            line-height: 1.65;
+            resize: vertical;
+        }
+
+        .create-page .situation-field textarea {
+            min-height: 124px;
+        }
+
+        .route-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .route-card {
+            min-width: 0;
+            padding: 1.2rem;
+            border: 1px solid rgba(169, 169, 184, 0.17);
+            border-radius: 12px;
+            background: rgba(23, 23, 32, 0.2);
+            transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+        }
+
+        .route-card:hover {
+            background: rgba(42, 42, 54, 0.26);
+            border-color: rgba(196, 123, 75, 0.32);
+            transform: translateY(-2px);
+        }
+
+        .route-card-a {
+            border-top: 2px solid rgba(196, 123, 75, 0.82);
+        }
+
+        .route-card-b {
+            border-top: 2px solid rgba(169, 169, 184, 0.42);
+        }
+
+        .route-card-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .route-name {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .route-meta {
+            color: #858595;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+        .result-field {
+            padding: 1.15rem;
+            border-left: 2px solid rgba(196, 123, 75, 0.7);
+            background: rgba(196, 123, 75, 0.045);
+        }
+
+        .outcome-confidence {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1.4rem;
+            align-items: start;
+        }
+
+        .confidence-panel {
+            padding: 1.15rem;
+            border: 1px solid rgba(196, 123, 75, 0.22);
+            border-radius: 12px;
+            background: rgba(196, 123, 75, 0.045);
+        }
+
+        .confidence-value {
+            color: #E2B88E;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .confidence-track {
+            height: 0.45rem;
+            margin-top: 1rem;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #B07045 var(--confidence-progress), rgba(169, 169, 184, 0.18) var(--confidence-progress));
+        }
+
+        .review-stage {
+            padding-bottom: 0;
+        }
+
+        .review-stage textarea {
+            min-height: 150px;
+            border-color: rgba(196, 123, 75, 0.3) !important;
+            background-color: rgba(196, 123, 75, 0.055) !important;
+        }
+
+        .create-actions {
+            display: flex;
+            gap: 0.75rem;
+            padding-top: 1.6rem;
+        }
+
+        @keyframes createStageIn {
+            from { opacity: 0; transform: translateY(9px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .create-shell { padding: 1.25rem; }
+            .create-intro { margin-bottom: 2rem; }
+            .route-grid,
+            .outcome-confidence { grid-template-columns: 1fr; }
+            .route-card { padding: 1rem; }
+            .route-card-head { align-items: flex-start; flex-direction: column; gap: 0.2rem; }
+            .route-meta { white-space: normal; }
+            .create-actions { flex-direction: column; }
+            .create-actions button { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .create-stage { animation: none; }
+            .route-card { transition: none; }
+        }
     </style>
 </head>
 <body>
@@ -495,96 +729,159 @@
             </div>
         </main>
 
-        <!-- 新建抉择表单（原有逻辑完全保留，仅修改备注为复盘回顾并新增信心滑块） -->
-        <main v-if="currentPage === 'create'" class="flex-1 max-w-2xl mx-auto px-4 py-8 w-full">
-            <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold">新建抉择</h2>
-                    <button @click="goHome" class="text-amber hover:underline text-sm">取消</button>
+        <!-- 新建抉择：保留原有字段与提交逻辑，调整为阶段式回顾 -->
+        <main v-if="currentPage === 'create'" class="create-page flex-1 mx-auto px-4 py-8 w-full">
+            <div class="create-shell bg-white rounded-lg shadow-sm">
+                <div class="create-intro">
+                    <div class="create-kicker">新建抉择</div>
+                    <h2 class="font-bold">回到那个选择发生的时刻。</h2>
+                    <p>先记下当时发生了什么，再看看你走过的路，以及没有走的那条</p>
                 </div>
-                
-                <form @submit.prevent="submitForm" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">抉择标题 <span class="text-red-500">*</span></label>
-                        <input v-model="form.title" type="text" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
-                    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium mb-1">当时面临的处境 <span class="text-red-500">*</span></label>
-                        <textarea v-model="form.situation" required rows="3"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">选项A名称（你选的那条路）<span class="text-red-500">*</span></label>
-                            <input v-model="form.optionAName" type="text" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                <form @submit.prevent="submitForm" class="create-form">
+                    <section class="create-stage">
+                        <div class="stage-heading">
+                            <div class="stage-index">01</div>
+                            <div>
+                                <h3 class="stage-title">回到那个时刻</h3>
+                                <p class="stage-caption">先回想一下，那时候的你正面对什么。</p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">选项B名称（没选的那条路）<span class="text-red-500">*</span></label>
-                            <input v-model="form.optionBName" type="text" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                        <div class="stage-fields">
+                            <div>
+                                <label class="field-label">抉择标题 <span class="text-red-500">*</span></label>
+                                <input v-model="form.title" type="text" required placeholder="给这次抉择一个名字"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                            </div>
+                            <div class="situation-field">
+                                <label class="field-label">当时面临的处境 <span class="text-red-500">*</span></label>
+                                <textarea v-model="form.situation" required rows="4" placeholder="那时发生了什么？你为什么需要做出选择？"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">选A时的期望 <span class="text-red-500">*</span></label>
-                            <textarea v-model="form.expectA" required rows="2"
+                    <section class="create-stage">
+                        <div class="stage-heading">
+                            <div class="stage-index">02</div>
+                            <div>
+                                <h3 class="stage-title">那时，你面对两条路</h3>
+                                <p class="stage-caption">让两种可能并排出现。A 是现实选择，B 只记录当时的想象。</p>
+                            </div>
+                        </div>
+                        <div class="route-grid">
+                            <div class="route-card route-card-a">
+                                <div class="route-card-head">
+                                    <div class="route-name">A｜我选择的路</div>
+                                    <div class="route-meta">已走的路</div>
+                                </div>
+                                <div class="stage-fields">
+                                    <div>
+                                        <label class="field-label">选项 A 名称 <span class="text-red-500">*</span></label>
+                                        <input v-model="form.optionAName" type="text" required placeholder="你最后选择了什么？"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                                    </div>
+                                    <div>
+                                        <label class="field-label">选 A 时的期望 <span class="text-red-500">*</span></label>
+                                        <textarea v-model="form.expectA" required rows="3" placeholder="当时希望它带来什么？"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="route-card route-card-b">
+                                <div class="route-card-head">
+                                    <div class="route-name">B｜我没有选择的路</div>
+                                    <div class="route-meta">未走的路</div>
+                                </div>
+                                <div class="stage-fields">
+                                    <div>
+                                        <label class="field-label">选项 B 名称 <span class="text-red-500">*</span></label>
+                                        <input v-model="form.optionBName" type="text" required placeholder="另一种选择是什么？"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                                    </div>
+                                    <div>
+                                        <label class="field-label">对 B 的想象 <span class="text-red-500">*</span></label>
+                                        <textarea v-model="form.imagineB" required rows="3" placeholder="当时想象不选 A 会怎样？"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="create-stage">
+                        <div class="stage-heading">
+                            <div class="stage-index">03</div>
+                            <div>
+                                <h3 class="stage-title">现实后来发生了什么</h3>
+                                <p class="stage-caption">时间继续往前走，后来发生了什么？</p>
+                            </div>
+                        </div>
+                        <div class="result-field">
+                            <label class="field-label">选 A 后的真实结果 <span class="text-red-500">*</span><span class="field-hint">只记录已经发生的现实，不替未选择的路编写结局。</span></label>
+                            <textarea v-model="form.resultA" required rows="4" placeholder="后来真实发生了什么？"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
                         </div>
+                    </section>
+
+                    <section class="create-stage">
+                        <div class="stage-heading">
+                            <div class="stage-index">04</div>
+                            <div>
+                                <h3 class="stage-title">结局与决策信心</h3>
+                                <p class="stage-caption">把后来得到的结局，和当时的确定程度放在一起看。</p>
+                            </div>
+                        </div>
+                        <div class="outcome-confidence">
+                            <div>
+                                <label class="field-label">结局标签</label>
+                                <select v-model="form.endTag"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                                    <option value="">请选择结局</option>
+                                    <option value="如愿以偿">如愿以偿</option>
+                                    <option value="事与愿违">事与愿违</option>
+                                    <option value="得失参半">得失参半</option>
+                                    <option value="留有遗憾">留有遗憾</option>
+                                    <option value="突破转机">突破转机</option>
+                                    <option value="归于平常">归于平常</option>
+                                    <option value="意料之外">意料之外</option>
+                                    <option value="小有收获">小有收获</option>
+                                </select>
+                                <input v-model="form.customEndTag" type="text" placeholder="自定义结局标签（填写后覆盖上方选择）"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-3">
+                            </div>
+                            <div class="confidence-panel">
+                                <div class="flex items-baseline justify-between gap-3">
+                                    <label class="field-label mb-0">当时，我有多确定？</label>
+                                    <span class="confidence-value">{{ form.confidence }}<span class="text-sm font-normal"> / 10</span></span>
+                                </div>
+                                <input v-model="form.confidence" type="range" min="0" max="10" step="1"
+                                    :style="{ '--confidence-progress': (Number(form.confidence) / 10 * 100) + '%' }"
+                                    class="confidence-track w-full appearance-none cursor-pointer accent-amber">
+                                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span>毫无把握</span>
+                                    <span>极度笃定</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="create-stage review-stage">
+                        <div class="stage-heading">
+                            <div class="stage-index">05</div>
+                            <div>
+                                <h3 class="stage-title">回头看看</h3>
+                                <p class="stage-caption">重要决策的意义，也许要在一次次回头之后才看得见。</p>
+                            </div>
+                        </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">选A后的真实结果 <span class="text-red-500">*</span></label>
-                            <textarea v-model="form.resultA" required rows="2"
+                            <label class="field-label">复盘回顾</label>
+                            <textarea v-model="form.note" rows="5" placeholder="当时为什么会这么选？&#10;现实和预期有什么差距？&#10;这次经历以后，下次会注意什么？"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
                         </div>
-                    </div>
+                    </section>
 
-                    <div>
-                        <label class="block text-sm font-medium mb-1">对B的想象 <span class="text-red-500">*</span></label>
-                        <textarea v-model="form.imagineB" required rows="2"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1">结局标签</label>
-                        <select v-model="form.endTag"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
-                            <option value="">请选择结局</option>
-                            <option value="如愿以偿">如愿以偿</option>
-                            <option value="事与愿违">事与愿违</option>
-                            <option value="得失参半">得失参半</option>
-                            <option value="留有遗憾">留有遗憾</option>
-                            <option value="突破转机">突破转机</option>
-                            <option value="归于平常">归于平常</option>
-                            <option value="意料之外">意料之外</option>
-                            <option value="小有收获">小有收获</option>
-                        </select>
-                        <input v-model="form.customEndTag" type="text" placeholder="自定义结局标签(填写后覆盖上方选择)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-3">
-                    </div>
-
-                    <!-- 决策时信心滑块 -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2">决策时信心：{{ form.confidence }} 分</label>
-                        <input v-model="form.confidence" type="range" min="0" max="10" step="1"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber">
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>毫无把握</span>
-                            <span>极度笃定</span>
-                        </div>
-                    </div>
-
-                    <!-- 复盘回顾（表单最底部） -->
-                    <div>
-                        <label class="block text-sm font-medium mb-1">复盘回顾</label>
-                        <textarea v-model="form.note" rows="3" placeholder="当时为什么会这么选，现实和预期有什么差距，这次经历过后，下次可以注意些什么"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition"></textarea>
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
+                    <div class="create-actions">
                         <button type="submit" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">保存抉择</button>
                         <button type="button" @click="goHome" class="px-6 py-2.5 border border-ink/20 rounded-md hover:bg-ink/5 transition font-medium">取消</button>
                     </div>
