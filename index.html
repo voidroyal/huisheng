@@ -21,6 +21,10 @@
     </script>
     <!-- Vue3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Lenis 平滑滚动 (写死版本号 1.1.14) -->
+    <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
     <style>
         :root {
             color-scheme: dark;
@@ -763,19 +767,19 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .grid > [data-end-tag].bg-white {
+        .gallery-masonry > [data-end-tag].bg-white {
             animation: cardFadeInConfidence 0.5s ease-out both;
         }
 
-        .grid > [data-end-tag].bg-white:nth-child(1) { animation-delay: 0.02s; }
-        .grid > [data-end-tag].bg-white:nth-child(2) { animation-delay: 0.08s; }
-        .grid > [data-end-tag].bg-white:nth-child(3) { animation-delay: 0.14s; }
-        .grid > [data-end-tag].bg-white:nth-child(4) { animation-delay: 0.20s; }
-        .grid > [data-end-tag].bg-white:nth-child(5) { animation-delay: 0.26s; }
-        .grid > [data-end-tag].bg-white:nth-child(6) { animation-delay: 0.32s; }
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(1) { animation-delay: 0.02s; }
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(2) { animation-delay: 0.08s; }
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(3) { animation-delay: 0.14s; }
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(4) { animation-delay: 0.20s; }
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(5) { animation-delay: 0.26s; }
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(6) { animation-delay: 0.32s; }
 
         /* 首条抉择实体化浮现（从虚影位置 materialize） */
-        .grid > [data-end-tag].bg-white:nth-child(1):only-child {
+        .gallery-masonry > [data-end-tag].bg-white:nth-child(1):only-child {
             animation: cardMaterialize 0.6s cubic-bezier(0.2,0.8,0.3,1) both;
         }
 
@@ -1030,13 +1034,879 @@
             main { animation: none; }
             .ghost-empty-wrap::before,
             .ghost-empty-wrap::after { animation: none; }
-            .grid > [data-end-tag].bg-white { animation: none; }
+            .gallery-masonry > [data-end-tag].bg-white { animation: none; }
             header { animation: none; }
             .bg-black\/50 > .bg-white { animation: none; }
+        }
+
+        /* ================================================================
+           Phase 2 & 3：数据洞察 + 筛选 + 对比 + 导入导出（仅新增 CSS）
+           ================================================================ */
+
+        /* ---- 画廊筛选工具栏 ---- */
+        .gallery-toolbar {
+            background: rgba(42,42,54,0.28);
+            backdrop-filter: blur(10px) saturate(1.1);
+            -webkit-backdrop-filter: blur(10px) saturate(1.1);
+            border: 1px solid rgba(196,123,75,0.12);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+        }
+
+        .gallery-toolbar input[type="text"],
+        .gallery-toolbar select {
+            background-color: rgba(23,23,32,0.5) !important;
+            border: 1px solid rgba(169,169,184,0.18);
+            border-radius: 10px;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.85rem;
+            color: #E8E8F0;
+        }
+
+        .toolbar-btn {
+            padding: 0.45rem 0.9rem;
+            border: 1px solid rgba(169,169,184,0.18);
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #E8E8F0;
+            background: rgba(23,23,32,0.35);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .toolbar-btn:hover {
+            border-color: rgba(196,123,75,0.35);
+            background: rgba(42,42,54,0.4);
+            color: #E2B88E;
+        }
+
+        .toolbar-btn.active {
+            border-color: rgba(196,123,75,0.5);
+            background: rgba(196,123,75,0.12);
+            color: #E2B88E;
+        }
+
+        .toolbar-file-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 0.9rem;
+            border: 1px solid rgba(169,169,184,0.18);
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #E8E8F0;
+            background: rgba(23,23,32,0.35);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .toolbar-file-label:hover {
+            border-color: rgba(196,123,75,0.35);
+            color: #E2B88E;
+        }
+
+        .toolbar-file-label input[type="file"] { display: none; }
+
+        .compare-status-bar {
+            margin-top: 0.6rem;
+            padding: 0.5rem 0.9rem;
+            background: rgba(196,123,75,0.08);
+            border: 1px solid rgba(196,123,75,0.18);
+            border-radius: 10px;
+            font-size: 0.82rem;
+            color: #E2B88E;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ---- 对比选中卡片样式 ---- */
+        .compare-selected {
+            border-color: rgba(196,123,75,0.6) !important;
+            box-shadow:
+                0 0 0 2px rgba(196,123,75,0.3),
+                0 4px 16px rgba(196,123,75,0.15),
+                0 8px 32px rgba(0,0,0,0.2) !important;
+        }
+
+        .compare-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(196,123,75,0.5);
+            background: rgba(23,23,32,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #E2B88E;
+        }
+
+        .compare-selected .compare-badge {
+            background: #C47B4B;
+            border-color: #C47B4B;
+            color: #fff;
+        }
+
+        /* ---- 洞察页面 ---- */
+        .insights-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .insight-stat-card {
+            padding: 1.4rem 1.2rem;
+            background: rgba(42,42,54,0.32);
+            backdrop-filter: blur(12px) saturate(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(1.15);
+            border: 1px solid rgba(196,123,75,0.14);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.16), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .insight-stat-label {
+            font-size: 0.75rem;
+            color: #858595;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #E2B88E;
+            line-height: 1.2;
+        }
+
+        .insight-stat-sub {
+            font-size: 0.75rem;
+            color: #A9A9B8;
+            margin-top: 0.3rem;
+        }
+
+        .chart-card {
+            padding: 1.6rem;
+            background: rgba(42,42,54,0.32);
+            backdrop-filter: blur(12px) saturate(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(1.15);
+            border: 1px solid rgba(196,123,75,0.14);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.16), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: #E8E8F0;
+        }
+
+        .chart-card p {
+            font-size: 0.78rem;
+            color: #858595;
+            margin-bottom: 1.2rem;
+        }
+
+        .chart-canvas-wrap {
+            position: relative;
+            height: 280px;
+        }
+
+        /* ---- 对比页面 ---- */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .compare-grid { grid-template-columns: 1fr; }
+        }
+
+        .compare-col {
+            padding: 1.6rem;
+            background: rgba(42,42,54,0.32);
+            backdrop-filter: blur(12px) saturate(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(1.15);
+            border: 1px solid rgba(196,123,75,0.14);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.16), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .compare-col h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .compare-field {
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(169,169,184,0.1);
+        }
+
+        .compare-field:last-child { border-bottom: none; }
+
+        .compare-field-label {
+            font-size: 0.72rem;
+            color: #858595;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .compare-field-value {
+            font-size: 0.88rem;
+            color: #E8E8F0;
+            line-height: 1.6;
+        }
+
+        .compare-diff-highlight {
+            color: #E2B88E;
+            font-weight: 600;
+        }
+
+        /* ---- 洞察页空状态 ---- */
+        .insights-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #858595;
+        }
+
+        /* ================================================================
+           v3 高级效果层（Aceternity 风格扫光 + 渐变标题 + Hero + 数字滚动）
+           ================================================================ */
+
+        /* ========== 1. 卡片扫光效果（CSS-only shine sweep） ========== */
+        .gallery-masonry > [data-end-tag].bg-white,
+        .compare-col,
+        .insight-stat-card,
+        .chart-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-masonry > [data-end-tag].bg-white::before,
+        .compare-col::before,
+        .insight-stat-card::before,
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent 0%,
+                rgba(226, 184, 142, 0.06) 40%,
+                rgba(226, 184, 142, 0.12) 50%,
+                rgba(226, 184, 142, 0.06) 60%,
+                transparent 100%
+            );
+            transform: skewX(-20deg);
+            pointer-events: none;
+            z-index: 2;
+            transition: left 0.7s cubic-bezier(0.2, 0.8, 0.3, 1);
+        }
+
+        .gallery-masonry > [data-end-tag].bg-white:hover::before,
+        .compare-col:hover::before,
+        .insight-stat-card:hover::before,
+        .chart-card:hover::before {
+            left: 125%;
+        }
+
+        /* ========== 2. 渐变标题文字 ========== */
+        .gradient-amber-text {
+            background: linear-gradient(135deg, #E2B88E 0%, #C47B4B 50%, #B07045 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .gradient-title-lg {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        /* ========== 3. 画廊 Hero 区域 ========== */
+        .gallery-hero {
+            position: relative;
+            padding: 3rem 0 2rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .gallery-hero::before {
+            content: '';
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            width: 400px;
+            height: 200px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse, rgba(196, 123, 75, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gallery-hero > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-kicker {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #E2B88E;
+            padding: 0.3rem 0.8rem;
+            border: 1px solid rgba(196, 123, 75, 0.25);
+            border-radius: 999px;
+            background: rgba(196, 123, 75, 0.06);
+            margin-bottom: 1.2rem;
+            animation: heroKickerIn 0.5s ease-out both;
+        }
+
+        @keyframes heroKickerIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 5.5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.8rem;
+            animation: heroTitleIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.08s both;
+        }
+
+        @keyframes heroTitleIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.05rem);
+            color: #A9A9B8;
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 1.6rem;
+            animation: heroSubIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.16s both;
+        }
+
+        @keyframes heroSubIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            animation: heroStatsIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.24s both;
+        }
+
+        @keyframes heroStatsIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .hero-stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #E2B88E;
+            line-height: 1;
+        }
+
+        .hero-stat-label {
+            font-size: 0.72rem;
+            color: #858595;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 640px) {
+            .gallery-hero { padding: 2rem 0 1.5rem; }
+            .hero-stats { gap: 1.5rem; }
+            .hero-stat-num { font-size: 1.4rem; }
+        }
+
+        /* ========== 4. 洞察数字滚动动画 ========== */
+        .stat-number-animate {
+            display: inline-block;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ========== 5. 导航栏 Logo 微光 ========== */
+        .text-amber.text-xl {
+            position: relative;
+        }
+
+        .text-amber.text-xl::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(196, 123, 75, 0.4), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .text-amber.text-xl:hover::after {
+            opacity: 1;
+        }
+
+        /* ========== 6. 洞察统计卡片入场序列 ========== */
+        .insight-stat-card {
+            animation: statCardIn 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+        }
+
+        .insight-stat-card:nth-child(1) { animation-delay: 0.05s; }
+        .insight-stat-card:nth-child(2) { animation-delay: 0.12s; }
+        .insight-stat-card:nth-child(3) { animation-delay: 0.19s; }
+        .insight-stat-card:nth-child(4) { animation-delay: 0.26s; }
+
+        @keyframes statCardIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ========== 7. 图表卡片入场 ========== */
+        .chart-card {
+            animation: chartCardIn 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+            animation-delay: 0.3s;
+        }
+
+        .chart-card:nth-child(2) { animation-delay: 0.4s; }
+
+        @keyframes chartCardIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 8. 降级兼容 ========== */
+        @supports not (backdrop-filter: blur(1px)) {
+            .gallery-masonry > [data-end-tag].bg-white::before,
+            .compare-col::before,
+            .insight-stat-card::before,
+            .chart-card::before { display: none; }
+            .gallery-hero::before { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .gallery-masonry > [data-end-tag].bg-white::before,
+            .compare-col::before,
+            .insight-stat-card::before,
+            .chart-card::before { transition: none; }
+            .hero-kicker, .hero-title, .hero-subtitle, .hero-stats,
+            .insight-stat-card, .chart-card { animation: none; }
+            .hero-fork-svg path { stroke-dashoffset: 0 !important; animation: none !important; }
+            .hero-fork-svg path.branch-b { stroke-dasharray: 4 6 !important; }
+        }
+
+        /* ========== 去AI味：CSS信心圆点（替代emoji⭐） ========== */
+        .conf-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .conf-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            border: 1px solid rgba(196, 123, 75, 0.4);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        .conf-dot.filled {
+            background: #C47B4B;
+            border-color: #C47B4B;
+            box-shadow: 0 0 6px rgba(196, 123, 75, 0.4);
+        }
+        .conf-dots-na {
+            color: #858595;
+            font-size: 0.85em;
+        }
+
+        /* ========== 去AI味：画廊masonry混排 ========== */
+        .gallery-masonry {
+            column-count: 3;
+            column-gap: 1.5rem;
+        }
+        .gallery-masonry > div {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            width: 100%;
+        }
+        @media (max-width: 1024px) {
+            .gallery-masonry { column-count: 2; }
+        }
+        @media (max-width: 640px) {
+            .gallery-masonry { column-count: 1; }
+        }
+
+        /* ========== 去AI味：不对称Hero + signature Y分叉 ========== */
+        .hero-asymmetric {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            padding: 3rem 0 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .hero-left {
+            flex: 0 0 58%;
+            max-width: 58%;
+        }
+        .hero-right {
+            flex: 0 0 42%;
+            max-width: 42%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero-fork-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1 / 1.1;
+        }
+        .hero-fork-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 10%;
+            background: radial-gradient(ellipse at center, rgba(196, 123, 75, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero-fork-svg {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .hero-fork-svg path {
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-dasharray: 400;
+            stroke-dashoffset: 400;
+            animation: forkDraw 2.5s ease-out 0.3s forwards;
+        }
+        .hero-fork-svg path.trunk {
+            stroke: #C47B4B;
+            animation-delay: 0.3s;
+        }
+        .hero-fork-svg path.branch-a {
+            stroke: #C47B4B;
+            animation-delay: 1.2s;
+        }
+        .hero-fork-svg path.branch-b {
+            stroke: #6B6B7B;
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            animation: forkDrawFade 2.5s ease-out 1.6s forwards,
+                       forkDashRestore 0.01s linear 4.2s forwards;
+        }
+        /* 画完后恢复虚线形态（CSS dasharray 会覆盖 SVG 属性的 4 4） */
+        @keyframes forkDashRestore {
+            to { stroke-dasharray: 4 6; }
+        }
+        .hero-fork-svg circle {
+            opacity: 0;
+            animation: forkNodeIn 0.5s ease-out forwards;
+        }
+        .hero-fork-svg circle.origin { animation-delay: 0.8s; }
+        .hero-fork-svg circle.node-a { animation-delay: 2.2s; }
+        .hero-fork-svg circle.node-b { animation-delay: 2.6s; }
+        .hero-fork-svg text {
+            opacity: 0;
+            font-size: 11px;
+            fill: #A9A9B8;
+            animation: forkNodeIn 0.5s ease-out forwards;
+        }
+        .hero-fork-svg text.label-a { animation-delay: 2.4s; }
+        .hero-fork-svg text.label-b { animation-delay: 2.8s; }
+
+        @keyframes forkDraw {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes forkDrawFade {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes forkNodeIn {
+            to { opacity: 1; }
+        }
+
+        .hero-fork-pulse {
+            position: absolute;
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #C47B4B;
+            box-shadow: 0 0 12px rgba(196, 123, 75, 0.6);
+            opacity: 0;
+            animation: forkPulse 2s ease-in-out 0.9s infinite;
+        }
+        @keyframes forkPulse {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+            100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-asymmetric {
+                flex-direction: column;
+                gap: 1.5rem;
+                padding: 2rem 0 1.5rem;
+            }
+            .hero-left, .hero-right {
+                flex: none;
+                max-width: 100%;
+            }
+            .hero-right { display: none; }
+        }
+
+        /* ========== 去AI味：画廊卡片去规整化 ========== */
+        .gallery-masonry > div:nth-child(3n+1) {
+            border-radius: 16px;
+        }
+        .gallery-masonry > div:nth-child(3n+2) {
+            border-radius: 16px 16px 4px 16px;
+        }
+        .gallery-masonry > div:nth-child(3n) {
+            border-radius: 4px 16px 16px 16px;
+        }
+        /* 高信心卡片视觉提级 */
+        .gallery-masonry > div[data-end-tag="突破转机"],
+        .gallery-masonry > div[data-end-tag="如愿以偿"] {
+            box-shadow: 0 4px 24px rgba(196, 123, 75, 0.12), 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* ================================================================
+           Retrowave 背景层（致敬 Retrowave 2）
+           落日渐变天空 / 条纹太阳 / 透视霓虹网格 / 地平线光带 /
+           棕榈剪影 / 星点 / CRT 扫描线
+           —— 独立固定装饰层，不触碰任何既有 SVG 与 JS
+           ================================================================ */
+
+        .retro-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 680px 340px at 50% 64%, rgba(232, 137, 107, 0.16) 0%, rgba(214, 95, 132, 0.07) 45%, transparent 72%),
+                linear-gradient(180deg,
+                    #12101C 0%,
+                    #191430 26%,
+                    #2B1A44 46%,
+                    #43215A 58%,
+                    #7A2E5E 63.5%,
+                    #2A1638 64.5%,
+                    #171720 100%);
+        }
+
+        /* 星点 */
+        .retro-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1.2px 1.2px at 8% 12%, rgba(232, 184, 142, 0.55), transparent 100%),
+                radial-gradient(1px 1px at 22% 26%, rgba(226, 184, 142, 0.4), transparent 100%),
+                radial-gradient(1.4px 1.4px at 35% 8%, rgba(232, 184, 142, 0.5), transparent 100%),
+                radial-gradient(1px 1px at 48% 20%, rgba(208, 160, 208, 0.35), transparent 100%),
+                radial-gradient(1.2px 1.2px at 61% 10%, rgba(232, 184, 142, 0.5), transparent 100%),
+                radial-gradient(1px 1px at 74% 24%, rgba(226, 184, 142, 0.4), transparent 100%),
+                radial-gradient(1.4px 1.4px at 86% 14%, rgba(232, 184, 142, 0.55), transparent 100%),
+                radial-gradient(1px 1px at 15% 38%, rgba(208, 160, 208, 0.3), transparent 100%),
+                radial-gradient(1.2px 1.2px at 68% 40%, rgba(226, 184, 142, 0.35), transparent 100%),
+                radial-gradient(1px 1px at 92% 34%, rgba(232, 184, 142, 0.4), transparent 100%);
+        }
+
+        /* 条纹落日：经典 synthwave 太阳，横纹由 mask 切出（不加 filter） */
+        .retro-sun {
+            position: absolute;
+            left: 50%;
+            top: 64%;
+            width: min(36vw, 430px);
+            height: min(36vw, 430px);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: linear-gradient(180deg,
+                #F7C59F 0%,
+                #E89A6B 38%,
+                #D65F84 72%,
+                #A83E7A 100%);
+            -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 26px, transparent 26px 34px);
+            mask-image: repeating-linear-gradient(180deg, #000 0 26px, transparent 26px 34px);
+            opacity: 0.9;
+        }
+
+        /* 地平线以下的暗色地面（压暗太阳下半，形成"落日沉入地平线"） */
+        .retro-floor {
+            position: absolute;
+            left: 0; right: 0;
+            top: 64%; bottom: 0;
+            background: linear-gradient(180deg,
+                rgba(22, 16, 34, 0.38) 0%,
+                rgba(16, 12, 26, 0.62) 30%,
+                rgba(13, 10, 20, 0.82) 100%);
+        }
+
+        /* 收敛射线网格：以落日为灭点向外辐射（conic 实现真实透视收敛） */
+        .retro-rays {
+            position: absolute;
+            inset: 0;
+            background: repeating-conic-gradient(from 0deg at 50% 64%,
+                rgba(232, 137, 107, 0.16) 0deg 0.35deg,
+                transparent 0.35deg 4.5deg);
+            -webkit-mask-image: linear-gradient(180deg, transparent 0 63.6%, #000 64%);
+            mask-image: linear-gradient(180deg, transparent 0 63.6%, #000 64%);
+        }
+
+        /* 横向车道线：向下流动模拟行驶感（无缝循环） */
+        .retro-lines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg,
+                rgba(214, 95, 132, 0.2) 0 2px,
+                transparent 2px 88px);
+            -webkit-mask-image: linear-gradient(180deg,
+                transparent 0 64%,
+                rgba(0, 0, 0, 0.55) 65%,
+                #000 71%,
+                #000 90%,
+                rgba(0, 0, 0, 0.45) 100%);
+            mask-image: linear-gradient(180deg,
+                transparent 0 64%,
+                rgba(0, 0, 0, 0.55) 65%,
+                #000 71%,
+                #000 90%,
+                rgba(0, 0, 0, 0.45) 100%);
+            animation: retroLinesMove 2.8s linear infinite;
+        }
+
+        @keyframes retroLinesMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 88px; }
+        }
+
+        /* 地平线光带 */
+        .retro-horizon {
+            position: absolute;
+            left: 0; right: 0;
+            top: 64%;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(232, 137, 107, 0.65) 28%,
+                rgba(214, 95, 132, 0.8) 50%,
+                rgba(232, 137, 107, 0.65) 72%,
+                transparent 100%);
+            box-shadow: 0 0 16px rgba(232, 137, 107, 0.4), 0 0 56px rgba(214, 95, 132, 0.22);
+        }
+
+        /* 棕榈剪影（新增装饰 SVG，与受保护的 Y 分叉 / 时间线 SVG 无关） */
+        .retro-palm {
+            position: absolute;
+            top: 64%;
+            height: 26vh;
+            width: auto;
+            transform: translateY(-100%);
+            opacity: 0.92;
+        }
+        .retro-palm-l { left: 3.5%; }
+        .retro-palm-r { right: 4.5%; height: 36vh; transform: translateY(-100%) scaleX(-1); }
+
+        /* CRT 扫描线（极淡） */
+        .retro-scan {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg,
+                rgba(255, 255, 255, 0.018) 0 1px,
+                transparent 1px 5px);
+        }
+
+        @media (max-width: 768px) {
+            .retro-palm-r { display: none; }
+            .retro-palm { height: 19vh; opacity: 0.7; }
+            .retro-sun { width: min(56vw, 320px); height: min(56vw, 320px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .retro-lines { animation: none; }
+        }
+
+        @supports not (backdrop-filter: blur(1px)) {
+            .retro-bg { display: none; }
         }
     </style>
 </head>
 <body>
+    <!-- Retrowave 2 致敬背景层（纯装饰固定层，不参与交互，与受保护的 Y 分叉 / 时间线 SVG 无关） -->
+    <div class="retro-bg" aria-hidden="true">
+        <div class="retro-sun"></div>
+        <div class="retro-floor"></div>
+        <div class="retro-rays"></div>
+        <div class="retro-lines"></div>
+        <div class="retro-horizon"></div>
+        <svg class="retro-palm retro-palm-l" viewBox="0 0 100 160" aria-hidden="true">
+            <g fill="#0F0B1A" fill-opacity="0.92">
+                <path d="M43 160 C 42 122 40 90 42 60 C 43 57 48 57 49 60 C 50 90 51 124 52 160 Z"/>
+                <path d="M46 56 Q22 42 2 58 Q24 38 47 51 Z"/>
+                <path d="M46 54 Q28 28 8 18 Q32 26 48 50 Z"/>
+                <path d="M47 53 Q47 26 36 4 Q52 24 50 52 Z"/>
+                <path d="M48 53 Q64 24 86 16 Q68 30 50 51 Z"/>
+                <path d="M48 54 Q72 40 96 56 Q74 36 50 50 Z"/>
+                <path d="M48 55 Q68 58 88 72 Q66 62 47 60 Z"/>
+                <path d="M46 55 Q26 60 6 74 Q28 63 46 60 Z"/>
+                <circle cx="44" cy="59" r="2.4"/>
+                <circle cx="49" cy="61" r="2.2"/>
+            </g>
+        </svg>
+        <svg class="retro-palm retro-palm-r" viewBox="0 0 100 160" aria-hidden="true">
+            <g fill="#0F0B1A" fill-opacity="0.92">
+                <path d="M43 160 C 42 122 40 90 42 60 C 43 57 48 57 49 60 C 50 90 51 124 52 160 Z"/>
+                <path d="M46 56 Q22 42 2 58 Q24 38 47 51 Z"/>
+                <path d="M46 54 Q28 28 8 18 Q32 26 48 50 Z"/>
+                <path d="M47 53 Q47 26 36 4 Q52 24 50 52 Z"/>
+                <path d="M48 53 Q64 24 86 16 Q68 30 50 51 Z"/>
+                <path d="M48 54 Q72 40 96 56 Q74 36 50 50 Z"/>
+                <path d="M48 55 Q68 58 88 72 Q66 62 47 60 Z"/>
+                <path d="M46 55 Q26 60 6 74 Q28 63 46 60 Z"/>
+                <circle cx="44" cy="59" r="2.4"/>
+                <circle cx="49" cy="61" r="2.2"/>
+            </g>
+        </svg>
+        <div class="retro-scan"></div>
+    </div>
     <div id="app" class="min-h-screen flex flex-col">
         <!-- 全局导航栏 -->
         <header v-if="currentPage !== 'create' && currentPage !== 'detail'" class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200">
@@ -1045,6 +1915,7 @@
                 <nav class="flex gap-3">
                     <!-- 新增全局总时间线导航项 -->
                     <button @click="currentPage = 'timeline'" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">全局总时间线</button>
+                    <button @click="goInsights" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">数据洞察</button>
                     <button @click="currentPage = 'create'" class="px-4 py-1.5 bg-amber text-white rounded-md hover:bg-amber/90 transition text-sm font-medium">新建抉择</button>
                     <button @click="currentPage = 'about'" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">关于</button>
                 </nav>
@@ -1068,33 +1939,119 @@
                 </div>
             </div>
 
-            <!-- 卡片网格 -->
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="record in records" :key="record.id" @click="goToDetail(record.id)"
-                    :style="{ '--card-confidence': Number(record.confidence) || 5 }"
-                    :data-end-tag="record.endTag"
-                    class="bg-white rounded-lg shadow-sm p-5 hover:shadow-md transition cursor-pointer border border-gray-100">
-                    <h3 class="text-lg font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
-                    <p class="text-sm text-gray-500 mb-3">{{ formatDate(record.createDate) }}</p>
-                    
-                    <div class="space-y-2 text-sm">
-                        <div>
-                            <span class="font-medium">现实选择：</span>{{ record.optionAName }}
-                            <p class="text-xs text-gray-600 mt-0.5">当时信心｜{{ record.expectA }}</p>
-                            <p class="text-xs text-gray-600">实际结局｜{{ record.resultA }}</p>
-                        </div>
-                        <div class="text-xs text-gray-500 pt-1">
-                            <span class="font-medium">假想备选：</span>{{ record.optionBName }}
-                            <span class="ml-1">· 想象：{{ record.imagineB }}</span>
+            <template v-else>
+                <!-- 画廊 Hero 区域（不对称布局 + signature Y分叉动画） -->
+                <div class="hero-asymmetric">
+                    <div class="hero-left">
+                        <span class="hero-kicker">抉择复盘工作台</span>
+                        <h1 class="hero-title gradient-amber-text">每一个选择的背后，<br>都藏着另一个自己</h1>
+                        <p class="hero-subtitle">记录你的重要抉择，复盘预期与现实的差距。在分岔路口留下的印记，终将成为未来的参照。</p>
+                        <div class="hero-stats">
+                            <div class="hero-stat-item">
+                                <span class="hero-stat-num">{{ records.length }}</span>
+                                <span class="hero-stat-label">条抉择记录</span>
+                            </div>
+                            <div class="hero-stat-item">
+                                <span class="hero-stat-num">{{ insightStats.avgConfidence }}</span>
+                                <span class="hero-stat-label">平均信心 / 10</span>
+                            </div>
+                            <div class="hero-stat-item">
+                                <span class="hero-stat-num">{{ insightStats.reviewCompleteness }}%</span>
+                                <span class="hero-stat-label">复盘完整度</span>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span class="underline decoration-amber decoration-2 underline-offset-4 text-sm glow-amber">{{ record.endTag }}</span>
-                        <span class="text-xs text-gray-400">点击查看详情</span>
+                    <div class="hero-right">
+                        <div class="hero-fork-wrap">
+                            <div class="hero-fork-pulse"></div>
+                            <svg class="hero-fork-svg" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 主干 -->
+                                <path class="trunk" d="M100 200 L100 110" stroke="#C47B4B"/>
+                                <!-- A路线（实线，选择的路径） -->
+                                <path class="branch-a" d="M100 110 L40 30" stroke="#C47B4B"/>
+                                <!-- B路线（虚线消散，未选的路径） -->
+                                <path class="branch-b" d="M100 110 L160 30" stroke="#6B6B7B" stroke-dasharray="4 4"/>
+                                <!-- 原点 -->
+                                <circle class="origin" cx="100" cy="200" r="5" fill="#C47B4B"/>
+                                <!-- 分叉点 -->
+                                <circle cx="100" cy="110" r="4" fill="#E2B88E" opacity="0"/>
+                                <!-- A终点 -->
+                                <circle class="node-a" cx="40" cy="30" r="5" fill="#C47B4B"/>
+                                <!-- B终点 -->
+                                <circle class="node-b" cx="160" cy="30" r="4" fill="#6B6B7B" opacity="0.5"/>
+                                <!-- 标签 -->
+                                <text class="label-a" x="40" y="18" text-anchor="middle">走过的路</text>
+                                <text class="label-b" x="160" y="18" text-anchor="middle">未走的路</text>
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- 筛选工具栏 -->
+                <div class="gallery-toolbar mb-6">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input v-model="searchKeyword" type="text" placeholder="搜索标题、处境、选项..." class="flex-1 min-w-[180px]">
+                        <select v-model="filterEndTag">
+                            <option value="">全部结局</option>
+                            <option value="如愿以偿">如愿以偿</option>
+                            <option value="事与愿违">事与愿违</option>
+                            <option value="得失参半">得失参半</option>
+                            <option value="留有遗憾">留有遗憾</option>
+                            <option value="突破转机">突破转机</option>
+                            <option value="归于平常">归于平常</option>
+                            <option value="意料之外">意料之外</option>
+                            <option value="小有收获">小有收获</option>
+                        </select>
+                        <select v-model="filterConfidence">
+                            <option value="">全部信心</option>
+                            <option value="low">低信心 (0-3)</option>
+                            <option value="mid">中等 (4-6)</option>
+                            <option value="high">高信心 (7-10)</option>
+                        </select>
+                        <button @click="toggleCompareMode" :class="{ active: compareMode }" class="toolbar-btn">对比</button>
+                        <button @click="exportData" class="toolbar-btn">导出</button>
+                        <label class="toolbar-file-label">导入<input type="file" accept=".json" @change="importData"></label>
+                    </div>
+                    <div v-if="compareMode" class="compare-status-bar">
+                        <span>已选 {{ selectedForCompare.length }} / 2 条抉择</span>
+                        <button v-if="selectedForCompare.length === 2" @click="startCompare" class="toolbar-btn active">开始对比</button>
+                        <button v-if="selectedForCompare.length > 0" @click="selectedForCompare = []" class="toolbar-btn">清空选择</button>
+                    </div>
+                </div>
+
+                <!-- 卡片瀑布流（masonry混排，打破AI味三列网格） -->
+                <div class="gallery-masonry">
+                    <div v-for="record in filteredRecords" :key="record.id"
+                        @click="compareMode ? toggleCompareSelect(record.id) : goToDetail(record.id)"
+                        :style="{ '--card-confidence': Number(record.confidence) || 5 }"
+                        :data-end-tag="record.endTag"
+                        :class="{ 'compare-selected': compareMode && selectedForCompare.includes(record.id) }"
+                        class="bg-white rounded-lg shadow-sm p-5 hover:shadow-md transition cursor-pointer border border-gray-100 relative">
+                        <div v-if="compareMode" class="compare-badge">
+                            <template v-if="selectedForCompare.includes(record.id)">{{ selectedForCompare.indexOf(record.id) + 1 }}</template>
+                        </div>
+                        <h3 class="text-lg font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
+                        <p class="text-sm text-gray-500 mb-3">{{ formatDate(record.createDate) }}</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <span class="font-medium">现实选择：</span>{{ record.optionAName }}
+                                <p class="text-xs text-gray-600 mt-0.5">当时信心｜{{ record.expectA }}</p>
+                                <p class="text-xs text-gray-600">实际结局｜{{ record.resultA }}</p>
+                            </div>
+                            <div class="text-xs text-gray-500 pt-1">
+                                <span class="font-medium">假想备选：</span>{{ record.optionBName }}
+                                <span class="ml-1">· 想象：{{ record.imagineB }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <span class="underline decoration-amber decoration-2 underline-offset-4 text-sm glow-amber">{{ record.endTag }}</span>
+                            <span class="text-xs text-gray-400">{{ compareMode ? '点击选择' : '点击查看详情' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </main>
 
         <!-- 新建抉择：保留原有字段与提交逻辑，调整为阶段式回顾 -->
@@ -1293,7 +2250,7 @@
                     <!-- 信心星级对照展示模块（移至复盘回顾上方） -->
                     <div class="pt-4 border-t border-gray-100">
                         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                            <span class="text-sm text-gray-600 glow-amber">当时信心：{{ confidenceStars }}</span>
+                            <span class="text-sm text-gray-600 glow-amber">当时信心：<span v-html="confidenceStars"></span></span>
                             <span class="text-sm text-gray-600">实际结果：<span class="underline decoration-amber decoration-2 underline-offset-4 glow-amber">{{ currentRecord.endTag }}</span></span>
                         </div>
                     </div>
@@ -1416,7 +2373,7 @@
                             
                             <!-- 新增：信心星级小字 -->
                             <div class="mt-2 text-xs text-gray-500 glow-amber">
-                                当时信心：{{ getConfidenceStarsText(record.confidence) }}
+                                当时信心：<span v-html="getConfidenceStarsText(record.confidence)"></span>
                             </div>
 
                             <!-- 小型Y分叉时间线 -->
@@ -1464,6 +2421,160 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </main>
+
+        <!-- 数据洞察页面 -->
+        <main v-if="currentPage === 'insights'" class="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold">数据洞察</h2>
+                <button @click="goHome" class="text-amber hover:underline text-sm font-medium">返回画廊</button>
+            </div>
+
+            <div v-if="records.length === 0" class="insights-empty">
+                <p class="text-lg mb-2">暂无数据可分析</p>
+                <p>先创建几条抉择记录，再来这里看看你的决策画像</p>
+            </div>
+
+            <div v-else>
+                <!-- 统计卡片 -->
+                <div class="insights-stats-grid">
+                    <div class="insight-stat-card">
+                        <div class="insight-stat-label">抉择总数</div>
+                        <div class="insight-stat-value">{{ insightStats.total }}</div>
+                        <div class="insight-stat-sub">条决策记录</div>
+                    </div>
+                    <div class="insight-stat-card">
+                        <div class="insight-stat-label">平均信心</div>
+                        <div class="insight-stat-value">{{ insightStats.avgConfidence }}</div>
+                        <div class="insight-stat-sub">满分 10</div>
+                    </div>
+                    <div class="insight-stat-card">
+                        <div class="insight-stat-label">最常结局</div>
+                        <div class="insight-stat-value" style="font-size:1.3rem">{{ insightStats.mostCommonOutcome }}</div>
+                        <div class="insight-stat-sub">{{ insightStats.mostCommonCount }} 次</div>
+                    </div>
+                    <div class="insight-stat-card">
+                        <div class="insight-stat-label">复盘完整度</div>
+                        <div class="insight-stat-value">{{ insightStats.reviewCompleteness }}%</div>
+                        <div class="insight-stat-sub">{{ insightStats.reviewedCount }} / {{ insightStats.total }} 条有复盘</div>
+                    </div>
+                </div>
+
+                <!-- 图表区 -->
+                <div class="chart-card">
+                    <h3>信心 vs 结局</h3>
+                    <p>每个点代表一次抉择，看看高信心是否意味着好结局</p>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="insightScatterChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="chart-card" style="margin-bottom:0">
+                        <h3>结局分布</h3>
+                        <p>你的抉择整体走向</p>
+                        <div class="chart-canvas-wrap">
+                            <canvas id="insightDoughnutChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="margin-bottom:0">
+                        <h3>决策时间密度</h3>
+                        <p>哪些时期你在做重要选择</p>
+                        <div class="chart-canvas-wrap">
+                            <canvas id="insightBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 抉择对比页面 -->
+        <main v-if="currentPage === 'compare'" class="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold">抉择对比</h2>
+                <button @click="goHome" class="text-amber hover:underline text-sm font-medium">返回画廊</button>
+            </div>
+
+            <div v-if="compareRecordA && compareRecordB" class="compare-grid">
+                <div class="compare-col" :data-end-tag="compareRecordA.endTag" :style="{ '--card-confidence': Number(compareRecordA.confidence) || 5 }">
+                    <h3>{{ compareRecordA.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-4">{{ formatDate(compareRecordA.createDate) }}</p>
+                    <div class="compare-field">
+                        <div class="compare-field-label">处境</div>
+                        <div class="compare-field-value">{{ compareRecordA.situation }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">现实选择 A</div>
+                        <div class="compare-field-value">{{ compareRecordA.optionAName }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">选 A 时的期望</div>
+                        <div class="compare-field-value">{{ compareRecordA.expectA }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">实际结果</div>
+                        <div class="compare-field-value">{{ compareRecordA.resultA }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">假想备选 B</div>
+                        <div class="compare-field-value">{{ compareRecordA.optionBName }} · {{ compareRecordA.imagineB }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">信心</div>
+                        <div class="compare-field-value compare-diff-highlight">{{ compareRecordA.confidence }} / 10 <span v-html="getConfidenceStarsText(compareRecordA.confidence)"></span></div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">结局</div>
+                        <div class="compare-field-value compare-diff-highlight">{{ compareRecordA.endTag }}</div>
+                    </div>
+                    <div v-if="compareRecordA.note" class="compare-field">
+                        <div class="compare-field-label">复盘</div>
+                        <div class="compare-field-value">{{ compareRecordA.note }}</div>
+                    </div>
+                </div>
+
+                <div class="compare-col" :data-end-tag="compareRecordB.endTag" :style="{ '--card-confidence': Number(compareRecordB.confidence) || 5 }">
+                    <h3>{{ compareRecordB.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-4">{{ formatDate(compareRecordB.createDate) }}</p>
+                    <div class="compare-field">
+                        <div class="compare-field-label">处境</div>
+                        <div class="compare-field-value">{{ compareRecordB.situation }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">现实选择 A</div>
+                        <div class="compare-field-value">{{ compareRecordB.optionAName }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">选 A 时的期望</div>
+                        <div class="compare-field-value">{{ compareRecordB.expectA }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">实际结果</div>
+                        <div class="compare-field-value">{{ compareRecordB.resultA }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">假想备选 B</div>
+                        <div class="compare-field-value">{{ compareRecordB.optionBName }} · {{ compareRecordB.imagineB }}</div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">信心</div>
+                        <div class="compare-field-value compare-diff-highlight">{{ compareRecordB.confidence }} / 10 <span v-html="getConfidenceStarsText(compareRecordB.confidence)"></span></div>
+                    </div>
+                    <div class="compare-field">
+                        <div class="compare-field-label">结局</div>
+                        <div class="compare-field-value compare-diff-highlight">{{ compareRecordB.endTag }}</div>
+                    </div>
+                    <div v-if="compareRecordB.note" class="compare-field">
+                        <div class="compare-field-label">复盘</div>
+                        <div class="compare-field-value">{{ compareRecordB.note }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="insights-empty">
+                <p class="text-lg mb-2">请从画廊选择两条抉择进行对比</p>
+                <button @click="goHome" class="toolbar-btn active mt-4">返回画廊</button>
             </div>
         </main>
 
@@ -1550,7 +2661,14 @@
                         endTag: '',
                         customEndTag: '',
                         confidence: 5,
-                    }
+                    },
+                    // Phase 2 & 3 新增
+                    searchKeyword: '',
+                    filterEndTag: '',
+                    filterConfidence: '',
+                    compareMode: false,
+                    selectedForCompare: [],
+                    chartInstances: {}
                 };
             },
             computed: {
@@ -1561,18 +2679,68 @@
                 sortedRecords() {
                     return [...this.records].sort((a, b) => a.createDate.localeCompare(b.createDate));
                 },
-                // 新增：详情页信心星级计算属性，兼容旧数据
+                // 新增：详情页信心圆点（CSS渲染，替代emoji）
                 confidenceStars() {
                     const conf = this.currentRecord?.confidence;
-                    if (conf === undefined || conf === null || conf === '') {
-                        return '未记录';
+                    return this.buildConfidenceDots(conf);
+                },
+                // Phase 2：筛选后的画廊记录
+                filteredRecords() {
+                    let list = [...this.records];
+                    if (this.searchKeyword.trim()) {
+                        const kw = this.searchKeyword.trim().toLowerCase();
+                        list = list.filter(r =>
+                            (r.title || '').toLowerCase().includes(kw) ||
+                            (r.situation || '').toLowerCase().includes(kw) ||
+                            (r.optionAName || '').toLowerCase().includes(kw) ||
+                            (r.optionBName || '').toLowerCase().includes(kw)
+                        );
                     }
-                    const num = Number(conf);
-                    if (num <= 2) return '⭐';
-                    if (num <= 4) return '⭐⭐';
-                    if (num <= 6) return '⭐⭐⭐';
-                    if (num <= 8) return '⭐⭐⭐⭐';
-                    return '⭐⭐⭐⭐⭐';
+                    if (this.filterEndTag) {
+                        list = list.filter(r => r.endTag === this.filterEndTag);
+                    }
+                    if (this.filterConfidence) {
+                        const ranges = { low: [0, 3], mid: [4, 6], high: [7, 10] };
+                        const range = ranges[this.filterConfidence];
+                        if (range) {
+                            list = list.filter(r => {
+                                const c = Number(r.confidence) || 0;
+                                return c >= range[0] && c <= range[1];
+                            });
+                        }
+                    }
+                    return list;
+                },
+                // Phase 2：洞察统计
+                insightStats() {
+                    const total = this.records.length;
+                    if (total === 0) return { total: 0, avgConfidence: '—', mostCommonOutcome: '—', mostCommonCount: 0, reviewCompleteness: 0, reviewedCount: 0 };
+                    const confidences = this.records.map(r => Number(r.confidence) || 0);
+                    const avgConfidence = (confidences.reduce((a, b) => a + b, 0) / total).toFixed(1);
+                    const tagCounts = {};
+                    this.records.forEach(r => {
+                        const tag = r.endTag || '未标记';
+                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                    });
+                    let mostCommonOutcome = '—', mostCommonCount = 0;
+                    for (const [tag, count] of Object.entries(tagCounts)) {
+                        if (count > mostCommonCount) {
+                            mostCommonOutcome = tag;
+                            mostCommonCount = count;
+                        }
+                    }
+                    const reviewedCount = this.records.filter(r => r.note && r.note.trim()).length;
+                    const reviewCompleteness = Math.round(reviewedCount / total * 100);
+                    return { total, avgConfidence, mostCommonOutcome, mostCommonCount, reviewCompleteness, reviewedCount };
+                },
+                // Phase 3：对比记录
+                compareRecordA() {
+                    if (this.selectedForCompare.length < 1) return null;
+                    return this.records.find(r => r.id === this.selectedForCompare[0]) ?? null;
+                },
+                compareRecordB() {
+                    if (this.selectedForCompare.length < 2) return null;
+                    return this.records.find(r => r.id === this.selectedForCompare[1]) ?? null;
                 }
             },
             methods: {
@@ -1628,21 +2796,396 @@
                 loadRecords() {
                     this.records = getAllRecords();
                 },
-                // 新增：全局总时间线信心星级文本，兼容旧数据
-                getConfidenceStarsText(confidence) {
+                // 演示数据种子：首次加载种入5条高质量示例抉择
+                seedDemoData() {
+                    var demos = [
+                        {
+                            title: '高考志愿：武汉纺织大学',
+                            situation: '分数出来后，比一本线高了一点点。复读太冒险，去普通一本又觉得不甘心。武汉纺织大学的嵌入式方向，是分数范围内能找到的最实在的选择——虽然名字不好听，但专业方向对口。',
+                            optionAName: '去武汉纺织大学·电子信息工程（嵌入式）',
+                            expectA: '觉得嵌入式方向好就业，武汉城市也不差，先上车再说',
+                            resultA: '入学后发现嵌入式实验室设备比想象中好，导师项目多，大一下就进了实验室',
+                            optionBName: '复读一年冲211',
+                            imagineB: '觉得再拼一年也许能上更好的学校，但心里没底，怕白费一年',
+                            note: '当时觉得将就了，现在回头看，专业方向比学校名字重要得多。嵌入式这条路选对了，实验室的资源反而比一些211还好。如果复读，多花一年不一定能换来更好的结果。',
+                            endTag: '如愿以偿',
+                            confidence: 7,
+                            createDate: '2026-07-20T10:30:00.000Z'
+                        },
+                        {
+                            title: '暑假要不要去深圳实习',
+                            situation: '大一下学期末，学长内推了一个深圳嵌入式开发实习，包住不包吃，月薪四千。去的话能提前接触工业级项目，但暑假就没法回家了，而且那边没人认识。',
+                            optionAName: '去深圳实习',
+                            expectA: '想积累真实项目经验，为以后简历加分',
+                            resultA: '实习期间参与了智能手表固件开发，虽然加班多但学到了RT-thread和低功耗设计，还认识了几个行业前辈',
+                            optionBName: '暑假回家自学',
+                            imagineB: '觉得在家看看书打打基础也行，还能陪家人',
+                            note: '去之前犹豫了很久，怕自己能力不够丢人。去了之后发现工业项目跟学校实验完全不是一个量级，那两个月的成长比之前一学期都多。唯一后悔的是没早点去。',
+                            endTag: '突破转机',
+                            confidence: 5,
+                            createDate: '2026-07-05T14:00:00.000Z'
+                        },
+                        {
+                            title: '那段没说出口的话',
+                            situation: '高中同桌三年，高考后去了不同城市。大一寒假同学聚会，觉得应该把心里的话说出来，但又怕连朋友都做不成。',
+                            optionAName: '保持沉默',
+                            expectA: '觉得不说至少还能维持朋友关系，说了可能连朋友都没了',
+                            resultA: '后来联系越来越少，渐渐变成了朋友圈点赞之交。偶尔想起还是会想，如果当时说了会怎样。',
+                            optionBName: '把心里话说出来',
+                            imagineB: '想着也许能在一起，大不了被拒绝也算了结了',
+                            note: '当时觉得自己是在保护这段关系，其实是在逃避。沉默不是安全，沉默是另一种失去。有些话不说出口，就再也没有机会说了。',
+                            endTag: '留有遗憾',
+                            confidence: 3,
+                            createDate: '2026-06-15T20:00:00.000Z'
+                        },
+                        {
+                            title: '独自去重庆旅行',
+                            situation: '大一国庆假期，室友都回家了。一个人在宿舍待着无聊，刷到重庆的特价机票，临时决定一个人去。从来没独自旅行过，也不做攻略。',
+                            optionAName: '独自去重庆',
+                            expectA: '就想换个环境，随便走走看看',
+                            resultA: '在重庆迷路三次，吃到了巷子里的老火锅，遇到一群也是独自旅行的年轻人拼桌，聊到凌晨两点。回来以后突然不怕一个人出门了。',
+                            optionBName: '待在宿舍',
+                            imagineB: '觉得一个人旅行太无聊，不如在宿舍打游戏',
+                            note: '出发前一直在打退堂鼓，觉得一个人旅行很傻。到了之后才发现，独自旅行最大的收获不是风景，是你被迫跟陌生人说话、被迫做决定、被迫面对意外。那种掌控感是待在宿舍永远体验不到的。',
+                            endTag: '意料之外',
+                            confidence: 4,
+                            createDate: '2026-06-01T09:00:00.000Z'
+                        },
+                        {
+                            title: '退社团专注项目',
+                            situation: '大一上加了电竞社，每周训练三次。同时嵌入式实验室也有项目要做。两个都想要，但时间根本不够，期中考试差点挂科。',
+                            optionAName: '退电竞社专注实验室',
+                            expectA: '觉得实验室项目对就业帮助更大，社团可以以后再参加',
+                            resultA: '退社后全力投入实验室，做出了一个完整的智能门锁原型，拿了校赛二等奖。但偶尔还是会怀念跟队友一起训练的日子。',
+                            optionBName: '退实验室留在电竞社',
+                            imagineB: '觉得电竞社的朋友更有意思，比赛也有成就感',
+                            note: '理性上知道退社团是对的，但感情上还是会想念。成年后的选择就是这样——不是在对错之间选，是在两个都对的东西之间选一个放弃另一个。学会放弃，可能就是这次抉择教我的。',
+                            endTag: '得失参半',
+                            confidence: 8,
+                            createDate: '2026-05-10T16:00:00.000Z'
+                        }
+                    ];
+                    demos.forEach(function(d) {
+                        d.id = generateId();
+                        d.confidence = String(d.confidence);
+                        addRecord(d);
+                    });
+                },
+                // 新增：构建CSS信心圆点HTML（替代emoji⭐）
+                buildConfidenceDots(confidence) {
                     if (confidence === undefined || confidence === null || confidence === '') {
-                        return '未记录';
+                        return '<span class="conf-dots-na">未记录</span>';
                     }
                     const num = Number(confidence);
-                    if (num <= 2) return '⭐';
-                    if (num <= 4) return '⭐⭐';
-                    if (num <= 6) return '⭐⭐⭐';
-                    if (num <= 8) return '⭐⭐⭐⭐';
-                    return '⭐⭐⭐⭐⭐';
+                    if (isNaN(num)) return '<span class="conf-dots-na">未记录</span>';
+                    const filled = Math.max(1, Math.min(5, Math.ceil(num / 2)));
+                    let html = '<span class="conf-dots">';
+                    for (var i = 0; i < 5; i++) {
+                        html += '<span class="conf-dot' + (i < filled ? ' filled' : '') + '"></span>';
+                    }
+                    html += '</span>';
+                    return html;
+                },
+                // 新增：全局总时间线信心圆点HTML，兼容旧数据
+                getConfidenceStarsText(confidence) {
+                    return this.buildConfidenceDots(confidence);
+                },
+                // ===== Phase 2 & 3 新增方法 =====
+                goInsights() {
+                    this.currentPage = 'insights';
+                },
+                toggleCompareMode() {
+                    this.compareMode = !this.compareMode;
+                    if (!this.compareMode) this.selectedForCompare = [];
+                },
+                toggleCompareSelect(id) {
+                    const idx = this.selectedForCompare.indexOf(id);
+                    if (idx >= 0) {
+                        this.selectedForCompare.splice(idx, 1);
+                    } else if (this.selectedForCompare.length < 2) {
+                        this.selectedForCompare.push(id);
+                    }
+                },
+                startCompare() {
+                    if (this.selectedForCompare.length === 2) {
+                        this.currentPage = 'compare';
+                    }
+                },
+                exportData() {
+                    const data = JSON.stringify(this.records, null, 2);
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'mingyun-qilu-' + new Date().toISOString().slice(0, 10) + '.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                },
+                importData(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const imported = JSON.parse(e.target.result);
+                            if (!Array.isArray(imported)) throw new Error('格式错误');
+                            const existing = getAllRecords();
+                            const existingIds = new Set(existing.map(r => r.id));
+                            let added = 0;
+                            imported.forEach(r => {
+                                if (r.id && !existingIds.has(r.id)) {
+                                    existing.push(r);
+                                    added++;
+                                }
+                            });
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+                            this.loadRecords();
+                            alert('成功导入 ' + added + ' 条记录（跳过 ' + (imported.length - added) + ' 条重复）');
+                        } catch (err) {
+                            alert('导入失败：文件格式不正确');
+                        }
+                        event.target.value = '';
+                    };
+                    reader.readAsText(file);
+                },
+                destroyInsightCharts() {
+                    Object.values(this.chartInstances).forEach(chart => {
+                        if (chart) chart.destroy();
+                    });
+                    this.chartInstances = {};
+                },
+                renderInsightCharts() {
+                    this.destroyInsightCharts();
+                    if (typeof Chart === 'undefined') return;
+                    var records = this.records;
+                    if (records.length === 0) return;
+                    // 数字滚动动画
+                    this.$nextTick(function() { this.animateStatNumbers(); }.bind(this));
+
+                    // Chart 1: Scatter — 信心 vs 结局
+                    var sentimentMap = {
+                        '如愿以偿': 3, '突破转机': 3, '小有收获': 3,
+                        '得失参半': 2, '归于平常': 2, '意料之外': 2,
+                        '事与愿违': 1, '留有遗憾': 1
+                    };
+                    var colorMap = { 3: 'rgba(196,123,75,0.7)', 2: 'rgba(160,160,180,0.6)', 1: 'rgba(180,70,70,0.6)' };
+                    var scatterData = records.map(function(r) {
+                        return { x: Number(r.confidence) || 0, y: sentimentMap[r.endTag] || 2, title: r.title };
+                    });
+                    var scatterCtx = document.getElementById('insightScatterChart');
+                    if (scatterCtx) {
+                        this.chartInstances.scatter = new Chart(scatterCtx, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                    label: '抉择',
+                                    data: scatterData,
+                                    backgroundColor: scatterData.map(function(d) { return colorMap[d.y] || 'rgba(196,123,75,0.6)'; }),
+                                    borderColor: 'rgba(196,123,75,0.3)',
+                                    pointRadius: 7,
+                                    pointHoverRadius: 10
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        min: -0.5, max: 10.5,
+                                        title: { display: true, text: '信心值', color: '#A9A9B8' },
+                                        grid: { color: 'rgba(169,169,184,0.08)' },
+                                        ticks: { color: '#A9A9B8', stepSize: 1 }
+                                    },
+                                    y: {
+                                        min: 0.5, max: 3.5,
+                                        title: { display: true, text: '结局', color: '#A9A9B8' },
+                                        grid: { color: 'rgba(169,169,184,0.08)' },
+                                        ticks: {
+                                            color: '#A9A9B8', stepSize: 1,
+                                            callback: function(v) { return { 1: '负面', 2: '中性', 3: '正向' }[v] || ''; }
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(23,23,32,0.92)',
+                                        titleColor: '#E2B88E', bodyColor: '#E8E8F0',
+                                        borderColor: 'rgba(196,123,75,0.18)', borderWidth: 1,
+                                        callbacks: {
+                                            label: function(ctx) {
+                                                var d = ctx.raw;
+                                                var s = { 1: '负面', 2: '中性', 3: '正向' }[d.y] || '';
+                                                return d.title + ' | 信心: ' + d.x + ' | ' + s;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    // Chart 2: Doughnut — 结局分布
+                    var tagCounts = {};
+                    records.forEach(function(r) {
+                        var tag = r.endTag || '未标记';
+                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                    });
+                    var tagLabels = Object.keys(tagCounts);
+                    var tagValues = tagLabels.map(function(k) { return tagCounts[k]; });
+                    var doughnutColors = ['#C47B4B', '#E2B88E', '#B07045', '#D4A574', '#A0A0B4', '#858595', '#B4644A', '#6B6B7E'];
+                    var doughnutCtx = document.getElementById('insightDoughnutChart');
+                    if (doughnutCtx) {
+                        this.chartInstances.doughnut = new Chart(doughnutCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: tagLabels,
+                                datasets: [{
+                                    data: tagValues,
+                                    backgroundColor: doughnutColors.slice(0, tagLabels.length),
+                                    borderColor: 'rgba(23,23,32,0.5)',
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { color: '#A9A9B8', font: { size: 11 }, padding: 8 }
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(23,23,32,0.92)',
+                                        titleColor: '#E2B88E', bodyColor: '#E8E8F0'
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    // Chart 3: Bar — 决策时间密度
+                    var monthCounts = {};
+                    records.forEach(function(r) {
+                        if (!r.createDate) return;
+                        var month = r.createDate.substring(0, 7);
+                        monthCounts[month] = (monthCounts[month] || 0) + 1;
+                    });
+                    var sortedMonths = Object.keys(monthCounts).sort();
+                    var barCtx = document.getElementById('insightBarChart');
+                    if (barCtx) {
+                        this.chartInstances.bar = new Chart(barCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: sortedMonths,
+                                datasets: [{
+                                    label: '抉择数',
+                                    data: sortedMonths.map(function(m) { return monthCounts[m]; }),
+                                    backgroundColor: 'rgba(196,123,75,0.5)',
+                                    borderColor: 'rgba(196,123,75,0.7)',
+                                    borderWidth: 1,
+                                    borderRadius: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        grid: { color: 'rgba(169,169,184,0.08)' },
+                                        ticks: { color: '#A9A9B8', font: { size: 10 } }
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: { color: 'rgba(169,169,184,0.08)' },
+                                        ticks: { color: '#A9A9B8', stepSize: 1 }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(23,23,32,0.92)',
+                                        titleColor: '#E2B88E', bodyColor: '#E8E8F0'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                // 洞察数字滚动动画
+                animateStatNumbers() {
+                    var self = this;
+                    var els = document.querySelectorAll('.insight-stat-value');
+                    els.forEach(function(el) {
+                        var raw = el.textContent.trim();
+                        var target = parseFloat(raw);
+                        if (isNaN(target)) return;
+                        var suffix = '';
+                        var isPercent = raw.indexOf('%') >= 0;
+                        var isDecimal = raw.indexOf('.') >= 0;
+                        if (isPercent) suffix = '%';
+                        var start = 0;
+                        var duration = 800;
+                        var startTime = null;
+                        function step(ts) {
+                            if (!startTime) startTime = ts;
+                            var progress = Math.min((ts - startTime) / duration, 1);
+                            var eased = 1 - Math.pow(1 - progress, 3);
+                            var val = start + (target - start) * eased;
+                            if (isDecimal) {
+                                el.textContent = val.toFixed(1) + suffix;
+                            } else {
+                                el.textContent = Math.round(val) + suffix;
+                            }
+                            if (progress < 1) {
+                                requestAnimationFrame(step);
+                            } else {
+                                el.textContent = (isDecimal ? target.toFixed(1) : target) + suffix;
+                            }
+                        }
+                        requestAnimationFrame(step);
+                    });
+                }
+            },
+            watch: {
+                currentPage(newVal) {
+                    if (newVal === 'insights') {
+                        this.$nextTick(() => this.renderInsightCharts());
+                    } else {
+                        this.destroyInsightCharts();
+                    }
+                    if (newVal === 'gallery') {
+                        this.compareMode = false;
+                    }
+                    // 页面切换时 Lenis 平滑回到顶部
+                    if (this.lenis) {
+                        this.lenis.scrollTo(0, { immediate: false, duration: 0.6 });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
                 }
             },
             mounted() {
+                // 首次加载时种入演示数据（评委打开即有内容）
+                if (getAllRecords().length === 0) {
+                    this.seedDemoData();
+                }
                 this.loadRecords();
+                // 初始化 Lenis 平滑滚动
+                if (typeof Lenis !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    this.lenis = new Lenis({
+                        duration: 1.1,
+                        easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+                        smoothWheel: true,
+                        touchMultiplier: 1.5,
+                    });
+                    var lenisRef = this.lenis;
+                    function raf(time) {
+                        lenisRef.raf(time);
+                        requestAnimationFrame(raf);
+                    }
+                    requestAnimationFrame(raf);
+                }
             }
         }).mount('#app');
     </script>
