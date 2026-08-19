@@ -668,6 +668,372 @@
             .create-stage { animation: none; }
             .route-card { transition: none; }
         }
+
+        /* ================================================================
+           高阶美化增强层 v2（仅 CSS / CSS 变量 / 关键帧，不触碰 SVG 内部 / JS）
+           ================================================================ */
+
+        /* ========== 1. 时间长河底层隐喻 ========== */
+        body { overflow-x: hidden; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 200%; height: 100%;
+            z-index: -2;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(196,123,75,0.015) 25%,
+                rgba(226,184,142,0.008) 50%,
+                rgba(196,123,75,0.015) 75%,
+                transparent 100%);
+            animation: riverFlow 80s linear infinite;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            z-index: -1;
+            background: radial-gradient(ellipse 1200px 800px at 50% 50%, transparent 30%, rgba(10,10,16,0.4) 100%);
+            pointer-events: none;
+        }
+
+        @keyframes riverFlow {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* ========== 2. 结局标签驱动边缘微光（CSS 变量） ========== */
+        [data-end-tag] {
+            --outcome-glow: 0 0 0 transparent;
+            --outcome-glow-hover: 0 0 0 transparent;
+            --conf-lift: calc(var(--card-confidence, 5) * 0.4px);
+            --conf-shadow: calc(var(--card-confidence, 5) * 0.8px);
+        }
+
+        /* 正向结局 */
+        [data-end-tag="如愿以偿"],
+        [data-end-tag="突破转机"],
+        [data-end-tag="小有收获"] {
+            --outcome-glow: 0 0 20px rgba(196,116,75,0.12);
+            --outcome-glow-hover: 0 0 32px rgba(196,116,75,0.35);
+        }
+
+        /* 中性结局 */
+        [data-end-tag="得失参半"],
+        [data-end-tag="归于平常"],
+        [data-end-tag="意料之外"] {
+            --outcome-glow: 0 0 16px rgba(160,160,180,0.10);
+            --outcome-glow-hover: 0 0 28px rgba(160,160,180,0.25);
+        }
+
+        /* 负面结局 */
+        [data-end-tag="事与愿违"],
+        [data-end-tag="留有遗憾"] {
+            --outcome-glow: 0 0 16px rgba(180,70,70,0.10);
+            --outcome-glow-hover: 0 0 28px rgba(180,70,70,0.30);
+        }
+
+        /* ========== 2①②. 卡片信心驱动悬浮 + 结局微光（统一覆盖） ========== */
+        [data-end-tag].bg-white {
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.16),
+                0 8px 32px rgba(0,0,0,0.20),
+                0 0 0 1px rgba(196,123,75,0.05),
+                var(--outcome-glow),
+                inset 0 1px 0 rgba(255,255,255,0.06) !important;
+        }
+
+        [data-end-tag].bg-white:hover {
+            transform: translateY(calc(-4px - var(--conf-lift, 2px))) !important;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.20),
+                0 calc(16px + var(--conf-shadow, 4px)) calc(40px + var(--conf-shadow, 8px)) rgba(0,0,0,0.24),
+                0 0 0 1px rgba(196,123,75,0.10),
+                0 0 calc(24px + var(--conf-shadow, 4px)) rgba(196,123,75,0.08),
+                var(--outcome-glow-hover),
+                inset 0 1px 0 rgba(255,255,255,0.06) !important;
+        }
+
+        /* ========== 2③. 卡片入场动画（信心驱动上浮幅度） ========== */
+        @keyframes cardFadeInConfidence {
+            from { opacity: 0; transform: translateY(calc(14px + var(--conf-lift, 2px))); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid > [data-end-tag].bg-white {
+            animation: cardFadeInConfidence 0.5s ease-out both;
+        }
+
+        .grid > [data-end-tag].bg-white:nth-child(1) { animation-delay: 0.02s; }
+        .grid > [data-end-tag].bg-white:nth-child(2) { animation-delay: 0.08s; }
+        .grid > [data-end-tag].bg-white:nth-child(3) { animation-delay: 0.14s; }
+        .grid > [data-end-tag].bg-white:nth-child(4) { animation-delay: 0.20s; }
+        .grid > [data-end-tag].bg-white:nth-child(5) { animation-delay: 0.26s; }
+        .grid > [data-end-tag].bg-white:nth-child(6) { animation-delay: 0.32s; }
+
+        /* 首条抉择实体化浮现（从虚影位置 materialize） */
+        .grid > [data-end-tag].bg-white:nth-child(1):only-child {
+            animation: cardMaterialize 0.6s cubic-bezier(0.2,0.8,0.3,1) both;
+        }
+
+        @keyframes cardMaterialize {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(6px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        /* ========== 2⑤. 删除消散动画（CSS 预备，需 JS 触发 class） ========== */
+        @keyframes cardDissolve {
+            to {
+                opacity: 0;
+                transform: scale(0.92) translateY(-8px);
+                filter: blur(4px);
+            }
+        }
+
+        .card-dissolving {
+            animation: cardDissolve 0.4s ease-in forwards !important;
+            pointer-events: none;
+        }
+
+        /* ========== 3. 导航栏滚动透明度变化 ========== */
+        header {
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @supports (animation-timeline: scroll()) {
+            header {
+                animation: navScrollFade linear forwards;
+                animation-timeline: scroll();
+                animation-range: 0 300px;
+            }
+
+            @keyframes navScrollFade {
+                to {
+                    background-color: rgba(23,23,32,0.78) !important;
+                    backdrop-filter: blur(20px) saturate(1.3) !important;
+                    -webkit-backdrop-filter: blur(20px) saturate(1.3) !important;
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.35) !important;
+                }
+            }
+        }
+
+        /* ========== 4. SVG 容器外发光光晕（不触碰 SVG 内部） ========== */
+        .svg-glow-wrap { position: relative; }
+
+        .svg-glow-wrap::before {
+            content: '';
+            position: absolute;
+            top: 45%; left: 50%;
+            width: 75%; height: 65%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse, rgba(196,123,75,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .svg-glow-wrap > * { position: relative; z-index: 1; }
+
+        .svg-glow-wrap-small { position: relative; }
+
+        .svg-glow-wrap-small::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 85%; height: 75%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse, rgba(196,123,75,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .svg-glow-wrap-small > * { position: relative; z-index: 1; }
+
+        /* ========== 5. 全局时间线节点 hover 预览气泡 ========== */
+        .group > [data-preview] { position: relative; }
+
+        .group > [data-preview]::after {
+            content: attr(data-preview);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 5px 12px;
+            background: rgba(23,23,32,0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(196,123,75,0.18);
+            border-radius: 10px;
+            font-size: 0.72rem;
+            color: #E2B88E;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease 0.1s;
+            z-index: 30;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .group:hover > [data-preview]::after { opacity: 1; }
+
+        .group:hover > [data-preview] {
+            transform: translateX(-50%) scale(1.6);
+            box-shadow: 0 0 12px rgba(196,123,75,0.5);
+        }
+
+        /* ========== 6. 表单与输入组件美化 ========== */
+        /* 文本域玻璃细滚动条 */
+        textarea::-webkit-scrollbar { width: 6px; }
+        textarea::-webkit-scrollbar-track {
+            background: rgba(23,23,32,0.3);
+            border-radius: 999px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(196,123,75,0.25);
+            border-radius: 999px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: rgba(196,123,75,0.4);
+        }
+
+        /* 复盘回顾文本域顶部渐变蒙层 */
+        .review-stage textarea {
+            background-image: linear-gradient(to bottom, rgba(196,123,75,0.035), transparent 30%) !important;
+        }
+
+        /* 信心滑块自发光 + 拖动增强 */
+        input[type="range"]::-webkit-slider-thumb {
+            box-shadow: 0 0 0 3px rgba(196,123,75,0.22), 0 0 8px rgba(196,123,75,0.3), 0 2px 6px rgba(0,0,0,0.3) !important;
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+        }
+
+        input[type="range"]:active::-webkit-slider-thumb,
+        input[type="range"]:focus::-webkit-slider-thumb {
+            box-shadow: 0 0 0 4px rgba(196,123,75,0.3), 0 0 16px rgba(196,123,75,0.5), 0 2px 6px rgba(0,0,0,0.3) !important;
+            transform: scale(1.15);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            box-shadow: 0 0 0 3px rgba(196,123,75,0.22), 0 0 8px rgba(196,123,75,0.3) !important;
+            transition: box-shadow 0.2s ease;
+        }
+
+        input[type="range"]:active::-moz-range-thumb {
+            box-shadow: 0 0 0 4px rgba(196,123,75,0.3), 0 0 16px rgba(196,123,75,0.5) !important;
+        }
+
+        /* ========== 7. 空状态虚影占位卡片 ========== */
+        .ghost-empty-wrap {
+            position: relative;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ghost-empty-wrap::before,
+        .ghost-empty-wrap::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 170px;
+            height: 210px;
+            border-radius: 16px;
+            border: 1px solid rgba(196,123,75,0.06);
+            background: rgba(42,42,54,0.06);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ghost-empty-wrap::before {
+            left: 12%;
+            animation: ghostFloatL 6s ease-in-out infinite;
+        }
+
+        .ghost-empty-wrap::after {
+            right: 12%;
+            animation: ghostFloatR 6s ease-in-out infinite 3s;
+        }
+
+        .ghost-empty-wrap > .empty-glass {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes ghostFloatL {
+            0%, 100% { transform: translateY(-50%) rotate(-5deg); opacity: 0.35; }
+            50% { transform: translateY(calc(-50% - 10px)) rotate(-5deg); opacity: 0.5; }
+        }
+
+        @keyframes ghostFloatR {
+            0%, 100% { transform: translateY(-50%) rotate(5deg); opacity: 0.35; }
+            50% { transform: translateY(calc(-50% - 10px)) rotate(5deg); opacity: 0.5; }
+        }
+
+        @media (max-width: 640px) {
+            .ghost-empty-wrap::before,
+            .ghost-empty-wrap::after { display: none; }
+        }
+
+        /* ========== 8. 页面转场动效 ========== */
+        @keyframes pageEnterUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        main {
+            animation: pageEnterUp 0.42s cubic-bezier(0.2,0.8,0.3,1) both;
+        }
+
+        /* 删除确认弹窗入场 */
+        .bg-black\/50 > .bg-white {
+            animation: modalEnter 0.3s cubic-bezier(0.2,0.8,0.3,1) both;
+        }
+
+        @keyframes modalEnter {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* ========== 9. 按钮交互增强 ========== */
+        .bg-amber {
+            transition: all 0.25s ease !important;
+        }
+
+        .bg-amber:hover {
+            transform: translateY(-2px);
+        }
+
+        .bg-amber:active {
+            transform: translateY(0) !important;
+        }
+
+        /* ========== 10. 降级兼容策略 ========== */
+        @supports not (backdrop-filter: blur(1px)) {
+            body::before { animation: none; opacity: 0; }
+            body::after { background: none; }
+            .ghost-empty-wrap::before,
+            .ghost-empty-wrap::after { display: none; }
+            .svg-glow-wrap::before,
+            .svg-glow-wrap-small::before { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body::before { animation: none; }
+            main { animation: none; }
+            .ghost-empty-wrap::before,
+            .ghost-empty-wrap::after { animation: none; }
+            .grid > [data-end-tag].bg-white { animation: none; }
+            header { animation: none; }
+            .bg-black\/50 > .bg-white { animation: none; }
+        }
     </style>
 </head>
 <body>
@@ -688,7 +1054,7 @@
         <!-- 画廊首页（原有逻辑完全保留） -->
         <main v-if="currentPage === 'gallery'" class="flex-1 max-w-6xl mx-auto px-4 py-8 w-full">
             <!-- 空状态 -->
-            <div v-if="records.length === 0" class="text-center py-16">
+            <div v-if="records.length === 0" class="text-center py-16 ghost-empty-wrap">
                 <div class="empty-glass inline-block px-12 py-10">
                     <svg width="56" height="56" viewBox="0 0 56 56" fill="none" class="mx-auto mb-4" style="opacity:0.35">
                         <path d="M28 48 L28 30 M28 30 L14 10 M28 30 L42 10" stroke="#C47B4B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
@@ -705,6 +1071,8 @@
             <!-- 卡片网格 -->
             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div v-for="record in records" :key="record.id" @click="goToDetail(record.id)"
+                    :style="{ '--card-confidence': Number(record.confidence) || 5 }"
+                    :data-end-tag="record.endTag"
                     class="bg-white rounded-lg shadow-sm p-5 hover:shadow-md transition cursor-pointer border border-gray-100">
                     <h3 class="text-lg font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
                     <p class="text-sm text-gray-500 mb-3">{{ formatDate(record.createDate) }}</p>
@@ -895,7 +1263,7 @@
                 ← 返回画廊
             </button>
 
-            <div class="bg-white rounded-lg shadow-sm p-6 md:p-8 border border-gray-100">
+            <div class="bg-white rounded-lg shadow-sm p-6 md:p-8 border border-gray-100" :data-end-tag="currentRecord.endTag" :style="{ '--card-confidence': Number(currentRecord.confidence) || 5 }">
                 <div class="flex items-start justify-between mb-6">
                     <div>
                         <h2 class="text-2xl font-bold mb-1">{{ currentRecord.title }}</h2>
@@ -937,7 +1305,7 @@
                 </div>
 
                 <!-- Y分叉SVG时间线（原有逻辑完全保留） -->
-                <div class="mt-10 pt-8 border-t border-gray-100">
+                <div class="mt-10 pt-8 border-t border-gray-100 svg-glow-wrap">
                     <h3 class="text-center font-bold mb-6">抉择时间线</h3>
                     <svg class="ytl mx-auto" viewBox="0 0 640 340" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -1002,7 +1370,7 @@
             </div>
 
             <!-- 空状态 -->
-            <div v-if="sortedRecords.length === 0" class="text-center py-16">
+            <div v-if="sortedRecords.length === 0" class="text-center py-16 ghost-empty-wrap">
                 <div class="empty-glass inline-block px-12 py-10">
                     <svg width="56" height="56" viewBox="0 0 56 56" fill="none" class="mx-auto mb-4" style="opacity:0.35">
                         <path d="M28 48 L28 30 M28 30 L14 10 M28 30 L42 10" stroke="#C47B4B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
@@ -1028,7 +1396,7 @@
                          :class="index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
                          @click="goToDetail(record.id)">
                         <!-- 时间轴节点圆点 -->
-                        <div class="absolute left-6 md:left-1/2 w-3 h-3 bg-amber rounded-full -translate-x-1/2 z-10 group-hover:scale-150 transition-transform"></div>
+                        <div class="absolute left-6 md:left-1/2 w-3 h-3 bg-amber rounded-full -translate-x-1/2 z-10 group-hover:scale-150 transition-transform" :data-preview="record.title"></div>
 
                         <!-- 桌面端日期标记 -->
                         <div class="hidden md:block w-1/2"
@@ -1038,6 +1406,8 @@
 
                         <!-- 抉择卡片+小型Y分叉 -->
                         <div class="ml-12 md:ml-0 md:w-5/12 bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition border border-gray-100"
+                             :style="{ '--card-confidence': Number(record.confidence) || 5 }"
+                             :data-end-tag="record.endTag"
                              :class="index % 2 === 0 ? 'order-2 md:mr-auto' : 'order-1 md:ml-auto'">
                             <h3 class="font-bold mb-1 line-clamp-1">{{ record.title }}</h3>
                             <p class="text-xs text-gray-500 mb-2 md:hidden">{{ formatDate(record.createDate) }}</p>
@@ -1050,7 +1420,7 @@
                             </div>
 
                             <!-- 小型Y分叉时间线 -->
-                            <div class="mt-3">
+                            <div class="mt-3 svg-glow-wrap-small">
                                 <svg class="ytl-small mx-auto" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <defs>
                                         <linearGradient id="ytlGrayFadeSmall" x1="100" y1="100" x2="40" y2="30" gradientUnits="userSpaceOnUse">
