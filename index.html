@@ -2313,6 +2313,19 @@
                                 <input v-model="form.customEndTag" type="text" placeholder="自定义结局标签（填写后覆盖上方选择）"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-3">
                             </div>
+                            <div class="mt-4">
+                                <label class="field-label">所属领域</label>
+                                <select v-model="form.domain" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition">
+                                    <option value="">不分类</option>
+                                    <option value="学业">学业</option>
+                                    <option value="职业">职业</option>
+                                    <option value="人际">人际</option>
+                                    <option value="生活">生活</option>
+                                    <option value="兴趣">兴趣</option>
+                                    <option value="消费">消费</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
                             <div class="confidence-panel">
                                 <div class="flex items-baseline justify-between gap-3">
                                     <label class="field-label mb-0">当时，我有多确定？</label>
@@ -2391,6 +2404,7 @@
                         <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                             <span class="text-sm text-gray-600 glow-amber">当时信心：<span v-html="confidenceStars"></span></span>
                             <span class="text-sm text-gray-600">实际结果：<span class="underline decoration-amber decoration-2 underline-offset-4 glow-amber">{{ currentRecord.endTag }}</span></span>
+                            <span v-if="currentRecord.domain" class="text-sm text-gray-600">领域：<span class="px-2 py-0.5 rounded-full bg-amber/10 text-amber text-xs font-medium">{{ currentRecord.domain }}</span></span>
                         </div>
                     </div>
 
@@ -2418,6 +2432,17 @@
                             </select>
                             <input v-model="editForm.customEndTag" type="text" placeholder="或者写个新的结局标签"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-2 mb-4">
+                            <label class="field-label block mb-1">所属领域</label>
+                            <select v-model="editForm.domain" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mb-4">
+                                <option value="">不分类</option>
+                                <option value="学业">学业</option>
+                                <option value="职业">职业</option>
+                                <option value="人际">人际</option>
+                                <option value="生活">生活</option>
+                                <option value="兴趣">兴趣</option>
+                                <option value="消费">消费</option>
+                                <option value="其他">其他</option>
+                            </select>
                             <div class="flex gap-3">
                                 <button @click="saveEdit" class="px-5 py-2 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium text-sm">保存</button>
                                 <button @click="cancelEdit" class="px-5 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition text-sm font-medium">取消</button>
@@ -2482,7 +2507,15 @@
                 这里记着你选过的、没选过的，过阵子回来翻翻，当时想的对不对——<br>
                 错了也不怕，错题本就是用来改的。
             </p>
-            <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">返回画廊</button>
+            <div class="mt-8 pt-8 border-t border-gray-200 text-left max-w-xl mx-auto">
+                <h2 class="text-xl font-bold mb-3">这是什么</h2>
+                <p class="text-gray-600 mb-5 leading-relaxed">命运歧路是一个「决策错题本」。大多数效率工具帮你向前规划，它反过来——帮你向后复盘：把每一次"选了 A 还是 B"、当时的把握、最后的结果记下来，过段时间回来翻，看自己到底哪里想错了。</p>
+                <h2 class="text-xl font-bold mb-3">为什么做</h2>
+                <p class="text-gray-600 mb-5 leading-relaxed">我们每天都在做选择，却很少回头验证选择的质量。种子数据来自一名嵌入式专业大一学生的真实经历：去哪所大学、去不去实习、要不要把话说出口……错题本让"成长"变得可被看见、可被纠正。</p>
+                <h2 class="text-xl font-bold mb-3">评委可以怎么玩</h2>
+                <p class="text-gray-600 leading-relaxed">① 打开画廊，翻翻这些带着毛边的真实抉择；② 点「创建」亲手记一条自己的选择；③ 去「洞察」页看图表，点结论能下钻到对应抉择；④ 「关于」里讲清楚了它和"向前引导"类产品的差异。</p>
+            </div>
+            <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium mt-8">返回画廊</button>
         </main>
 
         <!-- 新增：全局总时间线页面 -->
@@ -2847,6 +2880,7 @@
                         note: '',
                         endTag: '',
                         customEndTag: '',
+                        domain: '',
                         confidence: 5,
                     },
                     // Phase 2 & 3 新增
@@ -2862,6 +2896,7 @@
                         note: '',
                         endTag: '',
                         customEndTag: '',
+                        domain: '',
                     }
                 };
             },
@@ -2975,13 +3010,15 @@
                         insights.push({ label: '信心校准', relatedIds: idOf(high), text: `你 ${high.length} 次高信心的选择里，${Math.round(hr * high.length)} 次结果不错。` });
                     }
 
-                    // 2. 决策领域分布
+                    // 2. 决策领域分布（优先使用用户自选标签 domain，旧数据兜底正则）
+                    const DOMAIN_LIST = ['学业', '职业', '人际', '生活', '兴趣', '消费', '其他'];
                     const domainOf = (r) => {
+                        if (r.domain && DOMAIN_LIST.includes(r.domain)) return r.domain;
                         const t = (r.title || '') + (r.situation || '');
                         if (/高考|考研|学校|专业|学业|成绩|录取/.test(t)) return '学业';
                         if (/实习|工作|职业|实验室|项目|offer|就业|岗位/.test(t)) return '职业';
                         if (/旅行|旅游|出去|出发|重庆|城市|玩/.test(t)) return '生活';
-                        if (/朋友|关系|同桌|说出来|表白|话|恋/.test(t)) return '人际';
+                        if (/朋友|关系|同桌|说出来|表白|恋/.test(t)) return '人际';
                         if (/社团|电竞|游戏|兴趣/.test(t)) return '兴趣';
                         if (/买|开发板|手机|消费|花/.test(t)) return '消费';
                         return '其他';
@@ -3086,6 +3123,7 @@
                         note: '',
                         endTag: '',
                         customEndTag: '',
+                        domain: '',
                         confidence: 5,
                     };
                     this.goHome();
@@ -3102,6 +3140,7 @@
                     this.editForm.note = this.currentRecord.note || '';
                     this.editForm.endTag = this.currentRecord.endTag || '';
                     this.editForm.customEndTag = '';
+                    this.editForm.domain = this.currentRecord.domain || '';
                     this.editingRecord = true;
                 },
                 cancelEdit() {
@@ -3114,6 +3153,9 @@
                         patch.endTag = this.editForm.customEndTag.trim();
                     } else if (this.editForm.endTag && this.editForm.endTag.trim()) {
                         patch.endTag = this.editForm.endTag;
+                    }
+                    if (this.editForm.domain && this.editForm.domain.trim()) {
+                        patch.domain = this.editForm.domain.trim();
                     }
                     updateRecord(this.currentRecordId, patch);
                     this.editingRecord = false;
@@ -3136,6 +3178,7 @@
                             note: '当时觉得将就了，现在回头看，专业方向比学校名字重要得多。嵌入式这条路选对了，实验室的资源反而比一些211还好。如果复读，多花一年不一定能换来更好的结果。',
                             endTag: '如愿以偿',
                             confidence: 7,
+                            domain: '学业',
                             createDate: '2026-07-20T10:30:00.000Z'
                         },
                         {
@@ -3149,6 +3192,7 @@
                             note: '去之前犹豫了很久，怕自己能力不够丢人。去了之后发现工业项目跟学校实验完全不是一个量级，那两个月的成长比之前一学期都多。唯一后悔的是没早点去。',
                             endTag: '突破转机',
                             confidence: 5,
+                            domain: '职业',
                             createDate: '2026-07-05T14:00:00.000Z'
                         },
                         {
@@ -3162,6 +3206,7 @@
                             note: '当时觉得自己是在保护这段关系，其实是在逃避。沉默不是安全，沉默是另一种失去。有些话不说出口，就再也没有机会说了。',
                             endTag: '留有遗憾',
                             confidence: 3,
+                            domain: '人际',
                             createDate: '2026-06-15T20:00:00.000Z'
                         },
                         {
@@ -3175,6 +3220,7 @@
                             note: '出发前一直在打退堂鼓，觉得一个人旅行很傻。到了之后才发现，独自旅行最大的收获不是风景，是你被迫跟陌生人说话、被迫做决定、被迫面对意外。那种掌控感是待在宿舍永远体验不到的。',
                             endTag: '意料之外',
                             confidence: 4,
+                            domain: '生活',
                             createDate: '2026-06-01T09:00:00.000Z'
                         },
                         {
@@ -3188,6 +3234,7 @@
                             note: '理性上知道退社团是对的，但感情上还是会想念。成年后的选择就是这样——不是在对错之间选，是在两个都对的东西之间选一个放弃另一个。学会放弃，可能就是这次抉择教我的。',
                             endTag: '得失参半',
                             confidence: 8,
+                            domain: '兴趣',
                             createDate: '2026-05-10T16:00:00.000Z'
                         },
                         {
@@ -3201,6 +3248,7 @@
                             note: '去了，没啥用。',
                             endTag: '归于平常',
                             confidence: 2,
+                            domain: '职业',
                             createDate: '2026-07-25T09:00:00.000Z'
                         },
                         {
@@ -3214,7 +3262,50 @@
                             note: '',
                             endTag: '小有收获',
                             confidence: 6,
+                            domain: '消费',
                             createDate: '2026-08-01T20:00:00.000Z'
+                        },
+                        {
+                            title: '618 囤的传感器套装',
+                            situation: '618 大促，直播间说 STM32 传感器套装「闭眼入」，脑子一热下单了温湿度、陀螺仪、电机驱动一堆，花了四百多。',
+                            optionAName: '直接下单囤货',
+                            expectA: '觉得反正以后做项目用得上，趁便宜囤着',
+                            resultA: '到手后发现自己根本不会用，配套例程看不懂，现在还堆在快递盒里没拆。',
+                            optionBName: '先想清楚再买',
+                            imagineB: '想先确定要做什么项目，按需买元件',
+                            note: '又是「以后用得上」的坑。开发板、健身卡、现在这堆配件——我好像特别爱为想象中的自己在买东西。',
+                            endTag: '小有收获',
+                            confidence: 4,
+                            domain: '消费',
+                            createDate: '2026-08-05T11:00:00.000Z'
+                        },
+                        {
+                            title: '学校健身房年卡',
+                            situation: '学校附近新开健身房，年卡 999。室友说一起去，想着便宜就办了。',
+                            optionAName: '办年卡',
+                            expectA: '觉得有卡了会逼自己去，一年才 999 很划算',
+                            resultA: '前两周去了四次，之后就没再去过，现在会员卡在手机里吃灰。',
+                            optionBName: '按次付费',
+                            imagineB: '先按次去，能坚持再办卡',
+                            note: '和买开发板一个套路：为「未来的我」买单，然后未来的我没来。',
+                            endTag: '归于平常',
+                            confidence: 5,
+                            domain: '生活',
+                            createDate: '2026-08-10T15:00:00.000Z'
+                        },
+                        {
+                            title: '该不该主动联系阿成',
+                            situation: '高中玩得最好的朋友，因为我忙实验室慢慢不联系了。最近他发了条动态，我想评论又删掉。',
+                            optionAName: '主动发消息',
+                            expectA: '想恢复联系，毕竟这么多年交情',
+                            resultA: '',
+                            optionBName: '顺其自然',
+                            imagineB: '觉得关系好不用特意维护，慢慢就淡了也认了',
+                            note: '「顺其自然」已经被我用了好几次，每次都是不行动的借口。等我真想联系时，可能已经没话说了。',
+                            endTag: '留有遗憾',
+                            confidence: 3,
+                            domain: '人际',
+                            createDate: '2026-08-15T20:00:00.000Z'
                         }
                     ];
                     demos.forEach(function(d) {
@@ -3281,18 +3372,43 @@
                         try {
                             const imported = JSON.parse(e.target.result);
                             if (!Array.isArray(imported)) throw new Error('格式错误');
+                            // 字段白名单 + 类型校验：拒绝非法或恶意的导入数据
+                            const ALLOWED_FIELDS = ['id', 'title', 'situation', 'optionAName', 'expectA', 'resultA', 'optionBName', 'imagineB', 'note', 'endTag', 'customEndTag', 'domain', 'confidence', 'createDate'];
+                            const DOMAIN_SET = new Set(['学业', '职业', '人际', '生活', '兴趣', '消费', '其他']);
+                            const validateRecord = (r) => {
+                                if (!r || typeof r !== 'object' || Array.isArray(r)) return null;
+                                if (!r.title || typeof r.title !== 'string') return null;
+                                const clean = {};
+                                ALLOWED_FIELDS.forEach(f => {
+                                    if (r[f] === undefined || r[f] === null) return;
+                                    if (f === 'id') clean[f] = String(r[f]).slice(0, 64);
+                                    else if (f === 'confidence') {
+                                        const n = Number(r[f]);
+                                        clean[f] = (n >= 0 && n <= 10) ? n : 5;
+                                    } else if (f === 'domain') {
+                                        clean[f] = DOMAIN_SET.has(r[f]) ? r[f] : '其他';
+                                    } else {
+                                        clean[f] = String(r[f]).slice(0, 5000);
+                                    }
+                                });
+                                return clean;
+                            };
                             const existing = getAllRecords();
                             const existingIds = new Set(existing.map(r => r.id));
-                            let added = 0;
+                            let added = 0, skipped = 0;
                             imported.forEach(r => {
-                                if (r.id && !existingIds.has(r.id)) {
-                                    existing.push(r);
-                                    added++;
+                                const clean = validateRecord(r);
+                                if (!clean) { skipped++; return; }
+                                if (clean.id) {
+                                    if (existingIds.has(clean.id)) { skipped++; return; }
+                                    existingIds.add(clean.id);
                                 }
+                                existing.push(clean);
+                                added++;
                             });
                             localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
                             this.loadRecords();
-                            alert('成功导入 ' + added + ' 条记录（跳过 ' + (imported.length - added) + ' 条重复）');
+                            alert('成功导入 ' + added + ' 条记录' + (skipped ? '（跳过 ' + skipped + ' 条非法或重复）' : ''));
                         } catch (err) {
                             alert('导入失败：文件格式不正确');
                         }
