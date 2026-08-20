@@ -1610,6 +1610,41 @@
             font-weight: 600;
         }
 
+        /* ---- 分区标题：此路彼路 / 回望岔口 ---- */
+        .partition-head {
+            margin-bottom: 1.4rem;
+        }
+        .partition-title {
+            font-family: 'LXGW WenKai', Georgia, 'Songti SC', serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 700;
+            color: #E8E8F0;
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+        }
+        .partition-sub {
+            margin-top: 0.4rem;
+            font-size: 0.9rem;
+            color: #858595;
+            letter-spacing: 0.04em;
+        }
+        .insight-eyebrow {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            color: #E2B88E;
+            margin-bottom: 0.25rem;
+        }
+        .fork-caption {
+            margin-top: 0.8rem;
+            text-align: center;
+            font-family: 'LXGW WenKai', Georgia, serif;
+            font-size: 0.95rem;
+            letter-spacing: 0.3em;
+            color: #C47B4B;
+            opacity: 0.85;
+        }
+
         @media (max-width: 640px) {
             .gallery-hero { padding: 2rem 0 1.5rem; }
             .hero-pull-quote { font-size: 1.5rem; }
@@ -2134,6 +2169,12 @@
             </div>
 
             <template v-else>
+                <!-- 画廊分区标题：此路彼路 -->
+                <div class="partition-head">
+                    <h1 class="partition-title">此路彼路</h1>
+                    <p class="partition-sub">走过的路，与没走的路——都在这</p>
+                </div>
+
                 <!-- 画廊 Hero 区域（不对称布局 + signature Y分叉动画） -->
                 <div class="hero-asymmetric">
                     <div class="hero-left">
@@ -2170,6 +2211,7 @@
                                 <text class="label-b" x="160" y="18" text-anchor="middle">未走的路</text>
                             </svg>
                         </div>
+                        <p class="fork-caption">此路 · 彼路</p>
                     </div>
                 </div>
 
@@ -2683,7 +2725,10 @@
         <!-- 数据洞察页面 -->
         <main v-if="currentPage === 'insights'" class="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
             <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-bold">数据洞察</h2>
+                <div>
+                    <p class="insight-eyebrow">数据洞察</p>
+                    <h2 class="text-2xl font-bold">回望岔口</h2>
+                </div>
                 <button @click="goHome" class="text-amber hover:underline text-sm font-medium">返回画廊</button>
             </div>
 
