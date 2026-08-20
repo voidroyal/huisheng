@@ -25,6 +25,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Lenis 平滑滚动 (写死版本号 1.1.14) -->
     <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+    <!-- 中文字体：霞鹜文楷（标题衬线感） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
     <style>
         :root {
             color-scheme: dark;
@@ -38,7 +40,12 @@
                 radial-gradient(700px 500px at 50% 50%, rgba(196, 123, 75, 0.025), transparent 70%);
             background-attachment: fixed;
             color: #E8E8F0;
+            font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
             -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .hero-title, .hero-pull-quote, .font-serif-zh {
+            font-family: 'LXGW WenKai', 'Songti SC', 'Noto Serif SC', serif;
         }
 
         /* 原有时间线动画样式（详情页用） */
@@ -160,27 +167,27 @@
            B方案：深色玻璃拟态 glassmorphism（仅 CSS，不改动 HTML / JS / SVG）
            ================================================================ */
 
-        /* ---- 卡片 / 面板：半透磨砂玻璃 + 琥珀细边框 + 多层柔和悬浮阴影 ---- */
+        /* ---- 卡片 / 面板：深色玻璃框——压暗到接近实底，让紫粉背景只在卡片间隙透出 ---- */
         .bg-white {
-            background-color: rgba(42, 42, 54, 0.32) !important;
-            backdrop-filter: blur(12px) saturate(1.15);
-            -webkit-backdrop-filter: blur(12px) saturate(1.15);
-            border: 1px solid rgba(196, 123, 75, 0.14) !important;
+            background-color: rgba(24, 24, 36, 0.58) !important;
+            backdrop-filter: blur(14px) saturate(1.2);
+            -webkit-backdrop-filter: blur(14px) saturate(1.2);
+            border: 1px solid rgba(196, 123, 75, 0.16) !important;
             border-radius: 16px;
             box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.16),
-                0 8px 32px rgba(0, 0, 0, 0.20),
-                0 0 0 1px rgba(196, 123, 75, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+                0 2px 8px rgba(0, 0, 0, 0.20),
+                0 8px 32px rgba(0, 0, 0, 0.24),
+                0 0 0 1px rgba(196, 123, 75, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
         }
 
-        /* ---- 顶部悬浮导航：磨砂玻璃 + 底部光影分割 ---- */
+        /* ---- 顶部悬浮导航：深玻璃压暗，保证导航文字在紫粉背景上一眼可读 ---- */
         .bg-white\/80 {
-            background-color: rgba(23, 23, 32, 0.50) !important;
-            backdrop-filter: blur(12px) saturate(1.2);
-            -webkit-backdrop-filter: blur(12px) saturate(1.2);
-            border-bottom: 1px solid rgba(196, 123, 75, 0.12) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+            background-color: rgba(18, 18, 28, 0.68) !important;
+            backdrop-filter: blur(16px) saturate(1.25);
+            -webkit-backdrop-filter: blur(16px) saturate(1.25);
+            border-bottom: 1px solid rgba(196, 123, 75, 0.14) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30);
         }
 
         /* ---- 降级兼容：不支持 backdrop-filter 时回退深色实底卡片 ---- */
@@ -427,9 +434,9 @@
 
         /* ---- 空状态磨砂玻璃卡片 ---- */
         .empty-glass {
-            background-color: rgba(42, 42, 54, 0.28) !important;
-            backdrop-filter: blur(10px) saturate(1.1);
-            -webkit-backdrop-filter: blur(10px) saturate(1.1);
+            background-color: rgba(24, 24, 36, 0.50) !important;
+            backdrop-filter: blur(12px) saturate(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(1.15);
             border: 1px solid rgba(196, 123, 75, 0.10) !important;
             border-radius: 16px;
             box-shadow:
@@ -677,30 +684,17 @@
            高阶美化增强层 v2（仅 CSS / CSS 变量 / 关键帧，不触碰 SVG 内部 / JS）
            ================================================================ */
 
-        /* ========== 1. 时间长河底层隐喻 ========== */
+        /* ========== 1. 时间长河底层隐喻（已停用：紫粉 Retrowave 天空下不可见，省一层） ========== */
         body { overflow-x: hidden; }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0;
-            width: 200%; height: 100%;
-            z-index: -2;
-            background: linear-gradient(90deg,
-                transparent 0%,
-                rgba(196,123,75,0.015) 25%,
-                rgba(226,184,142,0.008) 50%,
-                rgba(196,123,75,0.015) 75%,
-                transparent 100%);
-            animation: riverFlow 80s linear infinite;
-            pointer-events: none;
-        }
+        body::before { display: none; }
 
         body::after {
             content: '';
             position: fixed; inset: 0;
             z-index: -1;
-            background: radial-gradient(ellipse 1200px 800px at 50% 50%, transparent 30%, rgba(10,10,16,0.4) 100%);
+            background:
+                linear-gradient(180deg, rgba(12,10,22,0.20) 0%, rgba(12,10,22,0.14) 40%, rgba(10,10,16,0.28) 100%),
+                radial-gradient(ellipse 1200px 800px at 50% 55%, transparent 28%, rgba(10,10,16,0.40) 100%);
             pointer-events: none;
         }
 
@@ -1190,6 +1184,56 @@
             margin-top: 0.3rem;
         }
 
+        /* 自动生成的洞察结论 */
+        .insight-conclusions {
+            margin-top: 1.6rem;
+            padding: 1.4rem 1.6rem;
+            background: rgba(42, 42, 54, 0.45);
+            backdrop-filter: blur(12px) saturate(1.1);
+            -webkit-backdrop-filter: blur(12px) saturate(1.1);
+            border: 1px solid rgba(196, 123, 75, 0.16);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: chartCardIn 0.5s ease-out 0.5s both;
+        }
+
+        .conclusions-title {
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            color: #E2B88E;
+            margin-bottom: 0.9rem;
+        }
+
+        .conclusion-item {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .conclusion-item:last-child {
+            border-bottom: none;
+        }
+
+        .conclusion-tag {
+            flex-shrink: 0;
+            font-size: 0.72rem;
+            color: #C47B4B;
+            background: rgba(196, 123, 75, 0.12);
+            border: 1px solid rgba(196, 123, 75, 0.22);
+            border-radius: 999px;
+            padding: 0.15rem 0.6rem;
+            margin-top: 0.15rem;
+            white-space: nowrap;
+        }
+
+        .conclusion-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #D8D8E0;
+        }
+
         .chart-card {
             padding: 1.6rem;
             background: rgba(42,42,54,0.32);
@@ -1364,88 +1408,38 @@
             z-index: 1;
         }
 
-        .hero-kicker {
-            display: inline-block;
-            font-size: 0.72rem;
+        .hero-pull-quote {
+            font-size: clamp(1.6rem, 4vw, 2.6rem);
             font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #E2B88E;
-            padding: 0.3rem 0.8rem;
-            border: 1px solid rgba(196, 123, 75, 0.25);
-            border-radius: 999px;
-            background: rgba(196, 123, 75, 0.06);
-            margin-bottom: 1.2rem;
-            animation: heroKickerIn 0.5s ease-out both;
+            line-height: 1.35;
+            color: #E8E8F0;
+            margin: 0 0 0.6rem 0;
+            padding: 0;
+            border: none;
+            animation: heroQuoteIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.08s both;
         }
 
-        @keyframes heroKickerIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hero-title {
-            font-size: clamp(2.2rem, 5.5vw, 3.5rem);
-            font-weight: 900;
-            line-height: 1.08;
-            letter-spacing: -0.025em;
-            margin-bottom: 0.8rem;
-            animation: heroTitleIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.08s both;
-        }
-
-        @keyframes heroTitleIn {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hero-subtitle {
-            font-size: clamp(0.9rem, 2vw, 1.05rem);
-            color: #A9A9B8;
-            line-height: 1.7;
-            max-width: 520px;
-            margin-bottom: 1.6rem;
-            animation: heroSubIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.16s both;
-        }
-
-        @keyframes heroSubIn {
+        @keyframes heroQuoteIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .hero-stats {
-            display: flex;
-            gap: 2.5rem;
-            animation: heroStatsIn 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.24s both;
-        }
-
-        @keyframes heroStatsIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hero-stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
-        }
-
-        .hero-stat-num {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #E2B88E;
-            line-height: 1;
-        }
-
-        .hero-stat-label {
-            font-size: 0.72rem;
+        .hero-quote-attr {
+            font-size: 0.85rem;
             color: #858595;
-            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+            animation: heroQuoteIn 0.5s ease-out 0.2s both;
+        }
+
+        .hero-quote-sub {
+            font-size: 0.8rem;
+            color: #6B6B7B;
+            animation: heroQuoteIn 0.5s ease-out 0.3s both;
         }
 
         @media (max-width: 640px) {
             .gallery-hero { padding: 2rem 0 1.5rem; }
-            .hero-stats { gap: 1.5rem; }
-            .hero-stat-num { font-size: 1.4rem; }
+            .hero-pull-quote { font-size: 1.5rem; }
         }
 
         /* ========== 4. 洞察数字滚动动画 ========== */
@@ -1517,7 +1511,7 @@
             .compare-col::before,
             .insight-stat-card::before,
             .chart-card::before { transition: none; }
-            .hero-kicker, .hero-title, .hero-subtitle, .hero-stats,
+            .hero-pull-quote, .hero-quote-attr, .hero-quote-sub,
             .insight-stat-card, .chart-card { animation: none; }
             .hero-fork-svg path { stroke-dashoffset: 0 !important; animation: none !important; }
             .hero-fork-svg path.branch-b { stroke-dasharray: 4 6 !important; }
@@ -1818,7 +1812,7 @@
             to { background-position: 0 88px; }
         }
 
-        /* 地平线光带 */
+        /* 地平线光带：琥珀-珊瑚双色渐变，桥接 UI 主色与 Retrowave 背景 */
         .retro-horizon {
             position: absolute;
             left: 0; right: 0;
@@ -1826,11 +1820,13 @@
             height: 2px;
             background: linear-gradient(90deg,
                 transparent 0%,
-                rgba(232, 137, 107, 0.65) 28%,
-                rgba(214, 95, 132, 0.8) 50%,
-                rgba(232, 137, 107, 0.65) 72%,
+                rgba(196, 123, 75, 0.55) 22%,
+                rgba(232, 137, 107, 0.72) 42%,
+                rgba(196, 123, 75, 0.85) 50%,
+                rgba(232, 137, 107, 0.72) 58%,
+                rgba(196, 123, 75, 0.55) 78%,
                 transparent 100%);
-            box-shadow: 0 0 16px rgba(232, 137, 107, 0.4), 0 0 56px rgba(214, 95, 132, 0.22);
+            box-shadow: 0 0 16px rgba(196, 123, 75, 0.38), 0 0 56px rgba(214, 95, 132, 0.16);
         }
 
         /* 棕榈剪影（新增装饰 SVG，与受保护的 Y 分叉 / 时间线 SVG 无关） */
@@ -1933,8 +1929,8 @@
                         <circle cx="14" cy="10" r="2.5" fill="#9ca3af" opacity="0.4"/>
                         <circle cx="42" cy="10" r="2.5" fill="#C47B4B" opacity="0.5"/>
                     </svg>
-                    <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">暂无抉择记录</p>
-                    <p class="text-gray-500 text-sm mb-6">在分岔路口，留下属于你的印记</p>
+                    <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">还没有记录</p>
+                    <p class="text-gray-500 text-sm mb-6">记下你做过的一个选择，以及没做的那个</p>
                     <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
                 </div>
             </div>
@@ -1943,23 +1939,9 @@
                 <!-- 画廊 Hero 区域（不对称布局 + signature Y分叉动画） -->
                 <div class="hero-asymmetric">
                     <div class="hero-left">
-                        <span class="hero-kicker">抉择复盘工作台</span>
-                        <h1 class="hero-title gradient-amber-text">每一个选择的背后，<br>都藏着另一个自己</h1>
-                        <p class="hero-subtitle">记录你的重要抉择，复盘预期与现实的差距。在分岔路口留下的印记，终将成为未来的参照。</p>
-                        <div class="hero-stats">
-                            <div class="hero-stat-item">
-                                <span class="hero-stat-num">{{ records.length }}</span>
-                                <span class="hero-stat-label">条抉择记录</span>
-                            </div>
-                            <div class="hero-stat-item">
-                                <span class="hero-stat-num">{{ insightStats.avgConfidence }}</span>
-                                <span class="hero-stat-label">平均信心 / 10</span>
-                            </div>
-                            <div class="hero-stat-item">
-                                <span class="hero-stat-num">{{ insightStats.reviewCompleteness }}%</span>
-                                <span class="hero-stat-label">复盘完整度</span>
-                            </div>
-                        </div>
+                        <blockquote class="hero-pull-quote" v-if="heroQuote">"{{ heroQuote.quote }}"</blockquote>
+                        <p class="hero-quote-attr" v-if="heroQuote">— 摘自《{{ heroQuote.title }}》的复盘</p>
+                        <p class="hero-quote-sub">{{ records.length }} 条抉择，{{ insightStats.reviewedCount }} 条写了复盘。往下翻，都是真实的犹豫和后悔。</p>
                     </div>
                     <div class="hero-right">
                         <div class="hero-fork-wrap">
@@ -2227,6 +2209,7 @@
                         <p class="text-gray-500 text-sm">{{ formatDate(currentRecord.createDate) }}</p>
                     </div>
                     <button @click="showDeleteModal = true" class="px-4 py-2 text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition text-sm font-medium whitespace-nowrap">删除此记录</button>
+                    <button @click="startEdit" v-if="!editingRecord" class="px-4 py-2 text-amber border border-amber/30 rounded-md hover:bg-amber/10 transition text-sm font-medium whitespace-nowrap">编辑复盘</button>
                 </div>
 
                 <div class="space-y-6">
@@ -2255,9 +2238,35 @@
                         </div>
                     </div>
 
-                    <div v-if="currentRecord.note" class="pt-4 border-t border-gray-100">
-                        <h3 class="font-bold mb-1">复盘回顾</h3>
-                        <p class="text-gray-700 whitespace-pre-line">{{ currentRecord.note }}</p>
+                    <div class="pt-4 border-t border-gray-100">
+                        <div v-if="!editingRecord">
+                            <h3 class="font-bold mb-1">复盘回顾</h3>
+                            <p v-if="currentRecord.note" class="text-gray-700 whitespace-pre-line">{{ currentRecord.note }}</p>
+                            <p v-else class="text-gray-400 text-sm">还没写复盘。点上面的「编辑复盘」补上。</p>
+                        </div>
+                        <div v-else>
+                            <h3 class="font-bold mb-2">编辑复盘</h3>
+                            <label class="field-label block mb-1">复盘内容</label>
+                            <textarea v-model="editForm.note" rows="5" placeholder="过段时间回看，当时想的对不对？"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mb-4"></textarea>
+                            <label class="field-label block mb-1">实际结局</label>
+                            <select v-model="editForm.endTag" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mb-1">
+                                <option value="如愿以偿">如愿以偿</option>
+                                <option value="事与愿违">事与愿违</option>
+                                <option value="得失参半">得失参半</option>
+                                <option value="留有遗憾">留有遗憾</option>
+                                <option value="突破转机">突破转机</option>
+                                <option value="归于平常">归于平常</option>
+                                <option value="意料之外">意料之外</option>
+                                <option value="小有收获">小有收获</option>
+                            </select>
+                            <input v-model="editForm.customEndTag" type="text" placeholder="或者写个新的结局标签"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition mt-2 mb-4">
+                            <div class="flex gap-3">
+                                <button @click="saveEdit" class="px-5 py-2 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium text-sm">保存</button>
+                                <button @click="cancelEdit" class="px-5 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition text-sm font-medium">取消</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2311,10 +2320,10 @@
         <!-- 极简关于页面（原有逻辑完全保留） -->
         <main v-if="currentPage === 'about'" class="flex-1 max-w-2xl mx-auto px-4 py-16 text-center w-full">
             <h1 class="text-3xl font-bold mb-4">命运歧路</h1>
-            <p class="text-lg text-gray-600 mb-2">抉择复盘工作台 C版</p>
+            <p class="text-lg text-gray-600 mb-2">一个记选择的本子</p>
             <p class="text-gray-500 mb-8 leading-relaxed">
-                记录你的每一个重要抉择，复盘预期与现实的差异，<br>
-                在分岔路口留下属于你的印记。
+                每次选择，都记下来：你选了什么、没选什么，<br>
+                过段时间回来看看，当时想的对不对。
             </p>
             <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">返回画廊</button>
         </main>
@@ -2432,8 +2441,8 @@
             </div>
 
             <div v-if="records.length === 0" class="insights-empty">
-                <p class="text-lg mb-2">暂无数据可分析</p>
-                <p>先创建几条抉择记录，再来这里看看你的决策画像</p>
+                <p class="text-lg mb-2">还没有记录</p>
+                <p>先记几条抉择，再来这儿看你想错了什么</p>
             </div>
 
             <div v-else>
@@ -2461,6 +2470,15 @@
                     </div>
                 </div>
 
+                <!-- 自动生成的洞察结论 -->
+                <div class="insight-conclusions" v-if="generatedInsights.length">
+                    <h3 class="conclusions-title">几条结论</h3>
+                    <div v-for="ins in generatedInsights" :key="ins.label" class="conclusion-item">
+                        <span class="conclusion-tag">{{ ins.label }}</span>
+                        <span class="conclusion-text">{{ ins.text }}</span>
+                    </div>
+                </div>
+
                 <!-- 图表区 -->
                 <div class="chart-card">
                     <h3>信心 vs 结局</h3>
@@ -2479,7 +2497,7 @@
                         </div>
                     </div>
                     <div class="chart-card" style="margin-bottom:0">
-                        <h3>决策时间密度</h3>
+                        <h3>你什么时候在做选择</h3>
                         <p>哪些时期你在做重要选择</p>
                         <div class="chart-canvas-wrap">
                             <canvas id="insightBarChart"></canvas>
@@ -2637,6 +2655,15 @@
             return true;
         }
 
+        function updateRecord(id, patch) {
+            const records = getAllRecords();
+            const index = records.findIndex(r => r.id === id);
+            if (index === -1) return false;
+            records[index] = { ...records[index], ...patch };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            return true;
+        }
+
         // ========================
         // Vue 应用（原有逻辑完全保留，仅新增信心相关逻辑）
         // ========================
@@ -2668,7 +2695,13 @@
                     filterConfidence: '',
                     compareMode: false,
                     selectedForCompare: [],
-                    chartInstances: {}
+                    chartInstances: {},
+                    editingRecord: false,
+                    editForm: {
+                        note: '',
+                        endTag: '',
+                        customEndTag: '',
+                    }
                 };
             },
             computed: {
@@ -2733,6 +2766,88 @@
                     const reviewCompleteness = Math.round(reviewedCount / total * 100);
                     return { total, avgConfidence, mostCommonOutcome, mostCommonCount, reviewCompleteness, reviewedCount };
                 },
+                // Hero 金句：从真实记录里抽取一句最有分量的复盘
+                heroQuote() {
+                    if (this.records.length === 0) return null;
+                    const withNote = this.records.filter(r => r.note && r.note.trim());
+                    const pool = withNote.length ? withNote : this.records;
+                    // 取笔记最长的那一条，拿它最后一句做金句
+                    const best = pool.reduce((a, b) =>
+                        ((b.note || '').length > (a.note || '').length ? b : a)
+                    );
+                    const note = best.note || '';
+                    const sentences = note.split(/[。！？\n]/).map(s => s.trim()).filter(Boolean);
+                    const punch = sentences.length ? sentences[sentences.length - 1] : best.title;
+                    return { quote: punch, title: best.title };
+                },
+                // 洞察生成器：从数据里读出人类能用的结论
+                generatedInsights() {
+                    const recs = this.records;
+                    const total = recs.length;
+                    if (total === 0) return [];
+                    const insights = [];
+                    const positive = ['如愿以偿', '突破转机', '小有收获', '意料之外'];
+
+                    // 1. 信心校准度
+                    const high = recs.filter(r => Number(r.confidence) >= 7);
+                    const low = recs.filter(r => Number(r.confidence) <= 4);
+                    const rate = arr => arr.length
+                        ? arr.filter(r => positive.includes(r.endTag)).length / arr.length
+                        : null;
+                    const hr = rate(high), lr = rate(low);
+                    if (high.length && low.length) {
+                        if (hr > lr) {
+                            insights.push({ label: '信心校准', text: `高信心（≥7）的 ${high.length} 次里，${Math.round(hr * high.length)} 次结果不错；低信心（≤4）的 ${low.length} 次里只有 ${Math.round(lr * low.length)} 次。你的直觉基本靠谱。` });
+                        } else if (hr < lr) {
+                            insights.push({ label: '信心校准', text: `反了：低信心（≤4）的 ${low.length} 次反而比高信心的 ${high.length} 次结果更好。你可能一直在低估自己。` });
+                        } else {
+                            insights.push({ label: '信心校准', text: `高信心和底信心的选择，结果好坏比例差不多——信心高低跟你选得对不对关系不大。` });
+                        }
+                    } else if (high.length) {
+                        insights.push({ label: '信心校准', text: `你 ${high.length} 次高信心的选择里，${Math.round(hr * high.length)} 次结果不错。` });
+                    }
+
+                    // 2. 决策领域分布
+                    const domainOf = (r) => {
+                        const t = (r.title || '') + (r.situation || '');
+                        if (/高考|考研|学校|专业|学业|成绩|录取/.test(t)) return '学业';
+                        if (/实习|工作|职业|实验室|项目|offer|就业|岗位/.test(t)) return '职业';
+                        if (/旅行|旅游|出去|出发|重庆|城市|玩/.test(t)) return '生活';
+                        if (/朋友|关系|同桌|说出来|表白|话|恋/.test(t)) return '人际';
+                        if (/社团|电竞|游戏|兴趣/.test(t)) return '兴趣';
+                        if (/买|开发板|手机|消费|花/.test(t)) return '消费';
+                        return '其他';
+                    };
+                    const dom = {};
+                    recs.forEach(r => { const d = domainOf(r); dom[d] = (dom[d] || 0) + 1; });
+                    let top = null;
+                    for (const [k, v] of Object.entries(dom)) {
+                        if (!top || v > top[1]) top = [k, v];
+                    }
+                    if (top && dom['其他'] !== total) {
+                        const others = dom['其他'] ? `还有 ${dom['其他']} 条没归到这几类。` : '';
+                        insights.push({ label: '关注方向', text: `你记下的选择里，最多的是「${top[0]}」相关（${top[1]} 条）。${others}` });
+                    }
+
+                    // 3. 复盘趋势
+                    const sorted = [...recs].sort((a, b) => a.createDate.localeCompare(b.createDate));
+                    const hasNote = r => r.note && r.note.trim();
+                    if (total >= 4) {
+                        const recent = sorted.slice(-3);
+                        const earliest = sorted.slice(0, 3);
+                        const recentRate = recent.filter(hasNote).length / recent.length;
+                        const earlyRate = earliest.filter(hasNote).length / (earliest.length || 1);
+                        if (recentRate > earlyRate && recentRate === 1) {
+                            insights.push({ label: '复盘习惯', text: `最近记的 3 条都写了复盘，比开头认真。坚持下来，这本子才越翻越有用。` });
+                        } else if (recentRate < earlyRate) {
+                            insights.push({ label: '复盘习惯', text: `开头记的几条都写了复盘，但最近几条没写。是不是忙起来了？` });
+                        } else {
+                            insights.push({ label: '复盘习惯', text: `你大概 ${(recentRate * 100).toFixed(0)}% 的选择会写复盘，这个频率刚好。` });
+                        }
+                    }
+
+                    return insights;
+                },
                 // Phase 3：对比记录
                 compareRecordA() {
                     if (this.selectedForCompare.length < 1) return null;
@@ -2792,6 +2907,28 @@
                         this.showDeleteModal = false;
                         this.goHome();
                     }
+                },
+                startEdit() {
+                    if (!this.currentRecord) return;
+                    this.editForm.note = this.currentRecord.note || '';
+                    this.editForm.endTag = this.currentRecord.endTag || '';
+                    this.editForm.customEndTag = '';
+                    this.editingRecord = true;
+                },
+                cancelEdit() {
+                    this.editingRecord = false;
+                },
+                saveEdit() {
+                    if (!this.currentRecordId) return;
+                    const patch = { note: this.editForm.note };
+                    if (this.editForm.customEndTag && this.editForm.customEndTag.trim()) {
+                        patch.endTag = this.editForm.customEndTag.trim();
+                    } else if (this.editForm.endTag && this.editForm.endTag.trim()) {
+                        patch.endTag = this.editForm.endTag;
+                    }
+                    updateRecord(this.currentRecordId, patch);
+                    this.editingRecord = false;
+                    this.loadRecords();
                 },
                 loadRecords() {
                     this.records = getAllRecords();
@@ -2863,6 +3000,32 @@
                             endTag: '得失参半',
                             confidence: 8,
                             createDate: '2026-05-10T16:00:00.000Z'
+                        },
+                        {
+                            title: '要不要参加校招宣讲会',
+                            situation: '辅导员在群里发了嵌入式岗位的宣讲会通知，大厂，但要求大二以上。大一去不去都行。',
+                            optionAName: '去看看',
+                            expectA: '想了解行业需求',
+                            resultA: '去了，人太多，站在最后面啥也没看清。',
+                            optionBName: '不去了',
+                            imagineB: '觉得大一去了也没用',
+                            note: '去了，没啥用。',
+                            endTag: '归于平常',
+                            confidence: 2,
+                            createDate: '2026-07-25T09:00:00.000Z'
+                        },
+                        {
+                            title: '买不买开发板',
+                            situation: '淘宝上看到一块STM32开发板，268块。',
+                            optionAName: '买',
+                            expectA: '想自己动手做点东西',
+                            resultA: '买来用了两次就吃灰了。',
+                            optionBName: '不买',
+                            imagineB: '觉得实验室有板子用',
+                            note: '',
+                            endTag: '小有收获',
+                            confidence: 6,
+                            createDate: '2026-08-01T20:00:00.000Z'
                         }
                     ];
                     demos.forEach(function(d) {
