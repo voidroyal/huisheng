@@ -1235,6 +1235,55 @@
             color: #D8D8E0;
         }
 
+        .conclusion-item.is-clickable {
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 0 -0.6rem;
+            padding: 0.65rem 0.6rem;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .conclusion-item.is-clickable:hover {
+            background: rgba(196, 123, 75, 0.08);
+            transform: translateX(2px);
+        }
+
+        .drill-hint {
+            color: #E2B88E;
+            font-size: 0.82rem;
+            opacity: 0.85;
+            white-space: nowrap;
+        }
+
+        /* 洞察下钻筛选提示条 */
+        .drill-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            padding: 0.7rem 1.1rem;
+            background: rgba(196, 123, 75, 0.1);
+            border: 1px solid rgba(196, 123, 75, 0.24);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #E2B88E;
+        }
+
+        .drill-clear {
+            flex-shrink: 0;
+            font-size: 0.8rem;
+            color: #E8E8F0;
+            background: rgba(196, 123, 75, 0.2);
+            border: 1px solid rgba(196, 123, 75, 0.3);
+            border-radius: 999px;
+            padding: 0.25rem 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .drill-clear:hover { background: rgba(196, 123, 75, 0.32); }
+
         .chart-card {
             padding: 1.6rem;
             background: rgba(42,42,54,0.32);
@@ -1502,6 +1551,15 @@
             font-size: 0.8rem;
             color: #6B6B7B;
             animation: heroQuoteIn 0.5s ease-out 0.3s both;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: #E2B88E;
+            margin-bottom: 0.9rem;
+            animation: heroQuoteIn 0.5s ease-out both;
         }
 
         @media (max-width: 640px) {
@@ -1784,33 +1842,33 @@
             overflow: hidden;
             pointer-events: none;
             background:
-                radial-gradient(ellipse 680px 340px at 50% 64%, rgba(232, 137, 107, 0.16) 0%, rgba(214, 95, 132, 0.07) 45%, transparent 72%),
+                radial-gradient(ellipse 720px 360px at 50% 64%, rgba(232, 184, 142, 0.18) 0%, rgba(196, 123, 75, 0.08) 45%, transparent 72%),
                 linear-gradient(180deg,
-                    #12101C 0%,
-                    #191430 26%,
-                    #2B1A44 46%,
-                    #43215A 58%,
-                    #7A2E5E 63.5%,
-                    #2A1638 64.5%,
+                    #14110D 0%,
+                    #1E1812 24%,
+                    #34271B 44%,
+                    #5C3F26 57%,
+                    #B5703A 63%,
+                    #2A1D13 64.5%,
                     #171720 100%);
         }
 
-        /* 星点 */
+        /* 星点（暖琥珀/奶白，无冷色） */
         .retro-bg::before {
             content: '';
             position: absolute;
             inset: 0;
             background-image:
-                radial-gradient(1.2px 1.2px at 8% 12%, rgba(232, 184, 142, 0.55), transparent 100%),
-                radial-gradient(1px 1px at 22% 26%, rgba(226, 184, 142, 0.4), transparent 100%),
-                radial-gradient(1.4px 1.4px at 35% 8%, rgba(232, 184, 142, 0.5), transparent 100%),
-                radial-gradient(1px 1px at 48% 20%, rgba(208, 160, 208, 0.35), transparent 100%),
-                radial-gradient(1.2px 1.2px at 61% 10%, rgba(232, 184, 142, 0.5), transparent 100%),
-                radial-gradient(1px 1px at 74% 24%, rgba(226, 184, 142, 0.4), transparent 100%),
-                radial-gradient(1.4px 1.4px at 86% 14%, rgba(232, 184, 142, 0.55), transparent 100%),
-                radial-gradient(1px 1px at 15% 38%, rgba(208, 160, 208, 0.3), transparent 100%),
-                radial-gradient(1.2px 1.2px at 68% 40%, rgba(226, 184, 142, 0.35), transparent 100%),
-                radial-gradient(1px 1px at 92% 34%, rgba(232, 184, 142, 0.4), transparent 100%);
+                radial-gradient(1.2px 1.2px at 8% 12%, rgba(232, 184, 142, 0.6), transparent 100%),
+                radial-gradient(1px 1px at 22% 26%, rgba(226, 184, 142, 0.45), transparent 100%),
+                radial-gradient(1.4px 1.4px at 35% 8%, rgba(255, 224, 196, 0.55), transparent 100%),
+                radial-gradient(1px 1px at 48% 20%, rgba(232, 184, 142, 0.4), transparent 100%),
+                radial-gradient(1.2px 1.2px at 61% 10%, rgba(226, 184, 142, 0.5), transparent 100%),
+                radial-gradient(1px 1px at 74% 24%, rgba(232, 184, 142, 0.45), transparent 100%),
+                radial-gradient(1.4px 1.4px at 86% 14%, rgba(255, 224, 196, 0.6), transparent 100%),
+                radial-gradient(1px 1px at 15% 38%, rgba(226, 184, 142, 0.35), transparent 100%),
+                radial-gradient(1.2px 1.2px at 68% 40%, rgba(232, 184, 142, 0.4), transparent 100%),
+                radial-gradient(1px 1px at 92% 34%, rgba(226, 184, 142, 0.45), transparent 100%);
         }
 
         /* 条纹落日：经典 synthwave 太阳，横纹由 mask 切出（不加 filter） */
@@ -1823,10 +1881,10 @@
             transform: translate(-50%, -50%);
             border-radius: 50%;
             background: linear-gradient(180deg,
-                #F7C59F 0%,
-                #E89A6B 38%,
-                #D65F84 72%,
-                #A83E7A 100%);
+                #FFE6C8 0%,
+                #F4B57C 38%,
+                #D98B52 72%,
+                #B5642E 100%);
             -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 26px, transparent 26px 34px);
             mask-image: repeating-linear-gradient(180deg, #000 0 26px, transparent 26px 34px);
             opacity: 0.9;
@@ -1838,9 +1896,9 @@
             left: 0; right: 0;
             top: 64%; bottom: 0;
             background: linear-gradient(180deg,
-                rgba(22, 16, 34, 0.38) 0%,
-                rgba(16, 12, 26, 0.62) 30%,
-                rgba(13, 10, 20, 0.82) 100%);
+                rgba(26, 19, 12, 0.38) 0%,
+                rgba(18, 13, 9, 0.62) 30%,
+                rgba(13, 10, 7, 0.82) 100%);
         }
 
         /* 收敛射线网格：以落日为灭点向外辐射（conic 实现真实透视收敛） */
@@ -1848,7 +1906,7 @@
             position: absolute;
             inset: 0;
             background: repeating-conic-gradient(from 0deg at 50% 64%,
-                rgba(232, 137, 107, 0.16) 0deg 0.35deg,
+                rgba(196, 123, 75, 0.15) 0deg 0.35deg,
                 transparent 0.35deg 4.5deg);
             -webkit-mask-image: linear-gradient(180deg, transparent 0 63.6%, #000 64%);
             mask-image: linear-gradient(180deg, transparent 0 63.6%, #000 64%);
@@ -1859,7 +1917,7 @@
             position: absolute;
             inset: 0;
             background: repeating-linear-gradient(180deg,
-                rgba(214, 95, 132, 0.2) 0 2px,
+                rgba(196, 123, 75, 0.18) 0 2px,
                 transparent 2px 88px);
             -webkit-mask-image: linear-gradient(180deg,
                 transparent 0 64%,
@@ -1895,7 +1953,7 @@
                 rgba(232, 137, 107, 0.72) 58%,
                 rgba(196, 123, 75, 0.55) 78%,
                 transparent 100%);
-            box-shadow: 0 0 16px rgba(196, 123, 75, 0.38), 0 0 56px rgba(214, 95, 132, 0.16);
+            box-shadow: 0 0 16px rgba(196, 123, 75, 0.38), 0 0 56px rgba(181, 100, 46, 0.14);
         }
 
         /* 棕榈剪影（新增装饰 SVG，与受保护的 Y 分叉 / 时间线 SVG 无关） */
@@ -1957,7 +2015,7 @@
     </style>
 </head>
 <body>
-    <!-- Retrowave 2 致敬背景层（纯装饰固定层，不参与交互，与受保护的 Y 分叉 / 时间线 SVG 无关） -->
+    <!-- 暖琥珀暮色背景层（纯装饰固定层，不参与交互，与受保护的 Y 分叉 / 时间线 SVG 无关） -->
     <div class="retro-bg" aria-hidden="true">
         <div class="retro-sun"></div>
         <div class="retro-floor"></div>
@@ -1965,7 +2023,7 @@
         <div class="retro-lines"></div>
         <div class="retro-horizon"></div>
         <svg class="retro-palm retro-palm-l" viewBox="0 0 100 160" aria-hidden="true">
-            <g fill="#0F0B1A" fill-opacity="0.92">
+            <g fill="#0C0805" fill-opacity="0.92">
                 <path d="M43 160 C 42 122 40 90 42 60 C 43 57 48 57 49 60 C 50 90 51 124 52 160 Z"/>
                 <path d="M46 56 Q22 42 2 58 Q24 38 47 51 Z"/>
                 <path d="M46 54 Q28 28 8 18 Q32 26 48 50 Z"/>
@@ -1979,7 +2037,7 @@
             </g>
         </svg>
         <svg class="retro-palm retro-palm-r" viewBox="0 0 100 160" aria-hidden="true">
-            <g fill="#0F0B1A" fill-opacity="0.92">
+            <g fill="#0C0805" fill-opacity="0.92">
                 <path d="M43 160 C 42 122 40 90 42 60 C 43 57 48 57 49 60 C 50 90 51 124 52 160 Z"/>
                 <path d="M46 56 Q22 42 2 58 Q24 38 47 51 Z"/>
                 <path d="M46 54 Q28 28 8 18 Q32 26 48 50 Z"/>
@@ -2030,9 +2088,10 @@
                 <!-- 画廊 Hero 区域（不对称布局 + signature Y分叉动画） -->
                 <div class="hero-asymmetric">
                     <div class="hero-left">
+                        <p class="hero-eyebrow">你的决策错题本</p>
                         <blockquote class="hero-pull-quote" v-if="heroQuote">"{{ heroQuote.quote }}"</blockquote>
                         <p class="hero-quote-attr" v-if="heroQuote">— 摘自《{{ heroQuote.title }}》的复盘</p>
-                        <p class="hero-quote-sub">{{ records.length }} 条抉择，{{ insightStats.reviewedCount }} 条写了复盘。往下翻，都是真实的犹豫和后悔。</p>
+                        <p class="hero-quote-sub">AI 能帮你做决定，但只有你自己能复盘。这里记着你选了什么、没选什么，过阵子回来翻翻，当时想的对不对。</p>
                     </div>
                     <div class="hero-right">
                         <div class="hero-fork-wrap">
@@ -2058,6 +2117,12 @@
                             </svg>
                         </div>
                     </div>
+                </div>
+
+                <!-- 洞察下钻筛选提示条 -->
+                <div v-if="drillFilterIds.length" class="drill-banner">
+                    <span>正在查看：{{ drillFilterIds.length }} 条相关抉择</span>
+                    <button @click="clearDrill" class="drill-clear">清除筛选</button>
                 </div>
 
                 <!-- 筛选工具栏 -->
@@ -2411,10 +2476,11 @@
         <!-- 极简关于页面（原有逻辑完全保留） -->
         <main v-if="currentPage === 'about'" class="flex-1 max-w-2xl mx-auto px-4 py-16 text-center w-full">
             <h1 class="text-3xl font-bold mb-4">命运歧路</h1>
-            <p class="text-lg text-gray-600 mb-2">一个记选择的本子</p>
+            <p class="text-lg text-gray-600 mb-2">你的决策错题本</p>
             <p class="text-gray-500 mb-8 leading-relaxed">
-                每次选择，都记下来：你选了什么、没选什么，<br>
-                过段时间回来看看，当时想的对不对。
+                AI 能帮你做决定，但只有你自己能复盘。<br>
+                这里记着你选过的、没选过的，过阵子回来翻翻，当时想的对不对——<br>
+                错了也不怕，错题本就是用来改的。
             </p>
             <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">返回画廊</button>
         </main>
@@ -2564,9 +2630,12 @@
                 <!-- 自动生成的洞察结论 -->
                 <div class="insight-conclusions" v-if="generatedInsights.length">
                     <h3 class="conclusions-title">几条结论</h3>
-                    <div v-for="ins in generatedInsights" :key="ins.label" class="conclusion-item">
+                    <div v-for="ins in generatedInsights" :key="ins.label"
+                         class="conclusion-item"
+                         :class="{ 'is-clickable': ins.relatedIds && ins.relatedIds.length }"
+                         @click="drillTo(ins)">
                         <span class="conclusion-tag">{{ ins.label }}</span>
-                        <span class="conclusion-text">{{ ins.text }}</span>
+                        <span class="conclusion-text">{{ ins.text }}<span v-if="ins.relatedIds && ins.relatedIds.length" class="drill-hint"> · 点开看这些记录 →</span></span>
                     </div>
                 </div>
 
@@ -2787,6 +2856,7 @@
                     compareMode: false,
                     selectedForCompare: [],
                     chartInstances: {},
+                    drillFilterIds: [],
                     editingRecord: false,
                     editForm: {
                         note: '',
@@ -2811,6 +2881,11 @@
                 // Phase 2：筛选后的画廊记录
                 filteredRecords() {
                     let list = [...this.records];
+                    if (this.drillFilterIds && this.drillFilterIds.length) {
+                        const set = new Set(this.drillFilterIds);
+                        list = list.filter(r => set.has(r.id));
+                        return list;
+                    }
                     if (this.searchKeyword.trim()) {
                         const kw = this.searchKeyword.trim().toLowerCase();
                         list = list.filter(r =>
@@ -2886,16 +2961,18 @@
                         ? arr.filter(r => positive.includes(r.endTag)).length / arr.length
                         : null;
                     const hr = rate(high), lr = rate(low);
+                    const idOf = arr => arr.map(r => r.id);
                     if (high.length && low.length) {
+                        const related = idOf(high).concat(idOf(low));
                         if (hr > lr) {
-                            insights.push({ label: '信心校准', text: `高信心（≥7）的 ${high.length} 次里，${Math.round(hr * high.length)} 次结果不错；低信心（≤4）的 ${low.length} 次里只有 ${Math.round(lr * low.length)} 次。你的直觉基本靠谱。` });
+                            insights.push({ label: '信心校准', relatedIds: related, text: `高信心（≥7）的 ${high.length} 次里，${Math.round(hr * high.length)} 次结果不错；低信心（≤4）的 ${low.length} 次里只有 ${Math.round(lr * low.length)} 次。你的直觉基本靠谱。` });
                         } else if (hr < lr) {
-                            insights.push({ label: '信心校准', text: `反了：低信心（≤4）的 ${low.length} 次反而比高信心的 ${high.length} 次结果更好。你可能一直在低估自己。` });
+                            insights.push({ label: '信心校准', relatedIds: related, text: `反了：低信心（≤4）的 ${low.length} 次反而比高信心的 ${high.length} 次结果更好。你可能一直在低估自己。` });
                         } else {
-                            insights.push({ label: '信心校准', text: `高信心和底信心的选择，结果好坏比例差不多——信心高低跟你选得对不对关系不大。` });
+                            insights.push({ label: '信心校准', relatedIds: related, text: `高信心和底信心的选择，结果好坏比例差不多——信心高低跟你选得对不对关系不大。` });
                         }
                     } else if (high.length) {
-                        insights.push({ label: '信心校准', text: `你 ${high.length} 次高信心的选择里，${Math.round(hr * high.length)} 次结果不错。` });
+                        insights.push({ label: '信心校准', relatedIds: idOf(high), text: `你 ${high.length} 次高信心的选择里，${Math.round(hr * high.length)} 次结果不错。` });
                     }
 
                     // 2. 决策领域分布
@@ -2917,7 +2994,8 @@
                     }
                     if (top && dom['其他'] !== total) {
                         const others = dom['其他'] ? `还有 ${dom['其他']} 条没归到这几类。` : '';
-                        insights.push({ label: '关注方向', text: `你记下的选择里，最多的是「${top[0]}」相关（${top[1]} 条）。${others}` });
+                        const related = recs.filter(r => domainOf(r) === top[0]).map(r => r.id);
+                        insights.push({ label: '关注方向', relatedIds: related, text: `你记下的选择里，最多的是「${top[0]}」相关（${top[1]} 条）。${others}` });
                     }
 
                     // 3. 复盘趋势
@@ -2928,12 +3006,13 @@
                         const earliest = sorted.slice(0, 3);
                         const recentRate = recent.filter(hasNote).length / recent.length;
                         const earlyRate = earliest.filter(hasNote).length / (earliest.length || 1);
+                        const related = recent.map(r => r.id);
                         if (recentRate > earlyRate && recentRate === 1) {
-                            insights.push({ label: '复盘习惯', text: `最近记的 3 条都写了复盘，比开头认真。坚持下来，这本子才越翻越有用。` });
+                            insights.push({ label: '复盘习惯', relatedIds: related, text: `最近记的 3 条都写了复盘，比开头认真。坚持下来，这本子才越翻越有用。` });
                         } else if (recentRate < earlyRate) {
-                            insights.push({ label: '复盘习惯', text: `开头记的几条都写了复盘，但最近几条没写。是不是忙起来了？` });
+                            insights.push({ label: '复盘习惯', relatedIds: related, text: `开头记的几条都写了复盘，但最近几条没写。是不是忙起来了？` });
                         } else {
-                            insights.push({ label: '复盘习惯', text: `你大概 ${(recentRate * 100).toFixed(0)}% 的选择会写复盘，这个频率刚好。` });
+                            insights.push({ label: '复盘习惯', relatedIds: related, text: `你大概 ${(recentRate * 100).toFixed(0)}% 的选择会写复盘，这个频率刚好。` });
                         }
                     }
 
@@ -2954,11 +3033,30 @@
                     this.currentPage = 'gallery';
                     this.currentRecordId = null;
                     this.showDeleteModal = false;
+                    this.drillFilterIds = [];
                     this.loadRecords();
                 },
                 goToDetail(id) {
                     this.currentRecordId = id;
                     this.currentPage = 'detail';
+                },
+                // 洞察结论下钻：单条直接进详情，多条切到画廊并筛选
+                drillTo(ins) {
+                    if (!ins || !ins.relatedIds || !ins.relatedIds.length) return;
+                    if (ins.relatedIds.length === 1) {
+                        this.goToDetail(ins.relatedIds[0]);
+                    } else {
+                        this.drillFilterIds = ins.relatedIds;
+                        this.currentPage = 'gallery';
+                        this.searchKeyword = '';
+                        this.filterEndTag = '';
+                        this.filterConfidence = '';
+                        const self = this;
+                        this.$nextTick(function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+                    }
+                },
+                clearDrill() {
+                    this.drillFilterIds = [];
                 },
                 formatDate(isoString) {
                     if (!isoString) return '';
@@ -3209,6 +3307,7 @@
                     this.chartInstances = {};
                 },
                 renderInsightCharts() {
+                    var self = this;
                     this.destroyInsightCharts();
                     if (typeof Chart === 'undefined') return;
                     var records = this.records;
@@ -3224,7 +3323,7 @@
                     };
                     var colorMap = { 3: 'rgba(196,123,75,0.7)', 2: 'rgba(160,160,180,0.6)', 1: 'rgba(180,70,70,0.6)' };
                     var scatterData = records.map(function(r) {
-                        return { x: Number(r.confidence) || 0, y: sentimentMap[r.endTag] || 2, title: r.title };
+                        return { x: Number(r.confidence) || 0, y: sentimentMap[r.endTag] || 2, title: r.title, id: r.id };
                     });
                     var scatterCtx = document.getElementById('insightScatterChart');
                     if (scatterCtx) {
@@ -3243,6 +3342,16 @@
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                onClick: function(evt, elements) {
+                                    if (elements.length) {
+                                        var idx = elements[0].index;
+                                        var pt = this.data.datasets[0].data[idx];
+                                        if (pt && pt.id) { self.goToDetail(pt.id); }
+                                    }
+                                },
+                                onHover: function(e, elements) {
+                                    e.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                                },
                                 scales: {
                                     x: {
                                         min: -0.5, max: 10.5,
