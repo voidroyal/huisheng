@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>命运歧路｜抉择复盘工作台</title>
+    <title>回声 — 让每一次选择，都回应未来的自己</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -2105,7 +2105,7 @@
         <!-- 全局导航栏 -->
         <header v-if="currentPage !== 'create' && currentPage !== 'detail'" class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200">
             <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-                <button @click="goHome" class="text-xl font-bold text-amber hover:opacity-80 transition">命运歧路</button>
+                <button @click="goHome" class="text-xl font-bold text-amber hover:opacity-80 transition">回声</button>
                 <nav class="flex gap-3">
                     <!-- 新增全局总时间线导航项 -->
                     <button @click="currentPage = 'timeline'" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">全局总时间线</button>
@@ -2137,7 +2137,7 @@
                 <!-- 画廊 Hero 区域（不对称布局 + signature Y分叉动画） -->
                 <div class="hero-asymmetric">
                     <div class="hero-left">
-                        <p class="hero-eyebrow">你的决策错题本</p>
+                        <p class="hero-eyebrow">你的决策回声</p>
                         <blockquote class="hero-pull-quote" v-if="heroQuote">"{{ heroQuote.quote }}"</blockquote>
                         <p class="hero-quote-attr" v-if="heroQuote">— 摘自《{{ heroQuote.title }}》的复盘</p>
                         <p class="hero-quote-sub">AI 能帮你做决定，但只有你自己能复盘。这里记着你选了什么、没选什么，过阵子回来翻翻，当时想的对不对。</p>
@@ -2557,16 +2557,16 @@
 
         <!-- 极简关于页面（原有逻辑完全保留） -->
         <main v-if="currentPage === 'about'" class="flex-1 max-w-2xl mx-auto px-4 py-16 text-center w-full">
-            <h1 class="text-3xl font-bold mb-4">命运歧路</h1>
-            <p class="text-lg text-gray-600 mb-2">你的决策错题本</p>
+            <h1 class="text-3xl font-bold mb-4">回声</h1>
+            <p class="text-lg text-gray-600 mb-2">让每一次选择，都回应未来的自己</p>
             <p class="text-gray-500 mb-8 leading-relaxed">
                 AI 能帮你做决定，但只有你自己能复盘。<br>
                 这里记着你选过的、没选过的，过阵子回来翻翻，当时想的对不对——<br>
-                错了也不怕，错题本就是用来改的。
+                错了也不怕——这本子，就是用来改的。
             </p>
             <div class="mt-8 pt-8 border-t border-gray-200 text-left max-w-xl mx-auto">
                 <h2 class="text-xl font-bold mb-3">这是什么</h2>
-                <p class="text-gray-600 mb-5 leading-relaxed">命运歧路是一个「决策错题本」。大多数效率工具帮你向前规划，它反过来——帮你向后复盘：把每一次"选了 A 还是 B"、当时的把握、最后的结果记下来，过段时间回来翻，看自己到底哪里想错了。</p>
+                <p class="text-gray-600 mb-5 leading-relaxed">回声是一个帮你向后复盘的「决策手记」。大多数效率工具帮你向前规划，它反过来——帮你向后复盘：把每一次"选了 A 还是 B"、当时的把握、最后的结果记下来，过段时间回来翻，看当时想的对不对。</p>
                 <h2 class="text-xl font-bold mb-3">为什么做</h2>
                 <p class="text-gray-600 mb-5 leading-relaxed">我们每天都在做选择，却很少回头验证选择的质量。种子数据来自一名嵌入式专业大一学生的真实经历：去哪所大学、去不去实习、要不要把话说出口……错题本让"成长"变得可被看见、可被纠正。</p>
                 <h2 class="text-xl font-bold mb-3">评委可以怎么玩</h2>
@@ -2888,7 +2888,7 @@
                 const raw = localStorage.getItem(STORAGE_KEY);
                 return raw ? JSON.parse(raw) : [];
             } catch (e) {
-                console.error('[命运歧路] 读取记录失败:', e);
+                console.error('[回声] 读取记录失败:', e);
                 return [];
             }
         }
