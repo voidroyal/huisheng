@@ -254,8 +254,9 @@
         textarea:focus,
         select:focus {
             border-color: #C47B4B !important;
-            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.18), 0 0 16px rgba(196, 123, 75, 0.12);
+            box-shadow: 0 0 0 3px rgba(196, 123, 75, 0.18), 0 0 18px rgba(196, 123, 75, 0.22);
             outline: none;
+            animation: focusGlow 2.4s ease-in-out infinite;
         }
 
         /* ---- 信心滑块：琥珀圆形拇指 + 深色轨道 ---- */
@@ -1366,6 +1367,71 @@
             left: 125%;
         }
 
+        /* ========== 2.5 Native 级微交互：液体玻璃 + 活的光晕 + 微动效 ========== */
+        /* 液体玻璃：hover 时内层流光 + 边框提亮琥珀 + 轻微抬升（纯 CSS，不进 SVG） */
+        .gallery-masonry > [data-end-tag].bg-white,
+        .insight-stat-card,
+        .chart-card,
+        .compare-col {
+            transition: transform .45s cubic-bezier(.2,.8,.3,1),
+                        box-shadow .45s ease,
+                        border-color .45s ease;
+        }
+        .gallery-masonry > [data-end-tag].bg-white::after,
+        .insight-stat-card::after,
+        .chart-card::after,
+        .compare-col::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(120% 120% at 50% 0%, rgba(226,184,142,0.10), transparent 55%);
+            opacity: 0;
+            transition: opacity .5s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .gallery-masonry > [data-end-tag].bg-white:hover,
+        .insight-stat-card:hover,
+        .chart-card:hover,
+        .compare-col:hover {
+            transform: translateY(-5px);
+            border-color: rgba(226,184,142,0.38) !important;
+            box-shadow:
+                0 10px 22px rgba(0,0,0,0.30),
+                0 20px 56px rgba(0,0,0,0.32),
+                0 0 0 1px rgba(196,123,75,0.12),
+                inset 0 1px 0 rgba(255,255,255,0.12) !important;
+        }
+        .gallery-masonry > [data-end-tag].bg-white:hover::after,
+        .insight-stat-card:hover::after,
+        .chart-card:hover::after,
+        .compare-col:hover::after {
+            opacity: 1;
+        }
+
+        /* 活的光晕：流体渐变 + 潮汐呼吸（缓慢 opacity/scale 流变，作用于外层容器，不进 SVG） */
+        @keyframes tidalBreath {
+            0%, 100% { opacity: 0.55; }
+            50% { opacity: 1; }
+        }
+        @keyframes tidalBreathScale {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
+            50% { transform: translate(-50%, -50%) scale(1.07); opacity: 1; }
+        }
+        @keyframes focusGlow {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(196,123,75,0.16), 0 0 14px rgba(196,123,75,0.16); }
+            50% { box-shadow: 0 0 0 3px rgba(196,123,75,0.22), 0 0 22px rgba(196,123,75,0.26); }
+        }
+
+        /* 微动效：按钮按压反馈（统一作用于所有 button，纯 CSS） */
+        button {
+            transition: transform .12s ease, box-shadow .3s ease, background-color .2s ease;
+        }
+        button:active:not(:disabled) {
+            transform: translateY(1px) scale(0.985);
+        }
+
         /* ========== 2. 渐变标题文字 ========== */
         .gradient-amber-text {
             background: linear-gradient(135deg, #E2B88E 0%, #C47B4B 50%, #B07045 100%);
@@ -1401,6 +1467,7 @@
             background: radial-gradient(ellipse, rgba(196, 123, 75, 0.08) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
+            animation: tidalBreathScale 8s ease-in-out infinite;
         }
 
         .gallery-hero > * {
@@ -1593,6 +1660,8 @@
             background: radial-gradient(ellipse at center, rgba(196, 123, 75, 0.1) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
+            transform-origin: center;
+            animation: tidalBreath 7s ease-in-out infinite;
         }
         .hero-fork-svg {
             position: relative;
@@ -1862,6 +1931,28 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .retro-bg { display: none; }
+        }
+
+        /* 微交互降级：关闭液体玻璃/潮汐呼吸/聚焦流光，保留静态样式 */
+        @media (prefers-reduced-motion: reduce) {
+            button:active:not(:disabled) { transform: none; }
+            .gallery-masonry > [data-end-tag].bg-white,
+            .insight-stat-card,
+            .chart-card,
+            .compare-col,
+            .gallery-hero::before,
+            .hero-fork-wrap::before,
+            input[type="text"]:focus,
+            textarea:focus,
+            select:focus {
+                animation: none !important;
+            }
+            .gallery-masonry > [data-end-tag].bg-white:hover,
+            .insight-stat-card:hover,
+            .chart-card:hover,
+            .compare-col:hover {
+                transform: none;
+            }
         }
     </style>
 </head>
