@@ -1562,6 +1562,54 @@
             animation: heroQuoteIn 0.5s ease-out both;
         }
 
+        /* ---- 故事化金句卡（首屏演示记忆点） ---- */
+        .golden-card {
+            margin-top: 1.5rem;
+            padding: 1.1rem 1.3rem;
+            border-left: 3px solid #C47B4B;
+            border-radius: 12px;
+            background: rgba(196, 123, 75, 0.09);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 0 1px rgba(226, 184, 142, 0.18);
+            animation: heroQuoteIn 0.6s ease-out 0.4s both;
+        }
+        .golden-card .golden-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: #E2B88E;
+            margin-bottom: 0.4rem;
+        }
+        .golden-card .golden-line {
+            font-family: 'LXGW WenKai', 'Songti SC', 'Noto Serif SC', serif;
+            font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+            font-weight: 600;
+            line-height: 1.5;
+            color: #E8E8F0;
+        }
+        .golden-card .golden-sub {
+            margin-top: 0.5rem;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            color: #858595;
+        }
+
+        /* ---- 首屏引导行（画廊 / 洞察通用） ---- */
+        .screen-guide {
+            margin: 1.6rem 0 1.3rem;
+            padding-left: 0.8rem;
+            border-left: 2px solid rgba(226, 184, 142, 0.35);
+            font-size: 0.85rem;
+            line-height: 1.65;
+            color: #858595;
+            animation: heroQuoteIn 0.5s ease-out 0.12s both;
+        }
+        .screen-guide strong {
+            color: #E2B88E;
+            font-weight: 600;
+        }
+
         @media (max-width: 640px) {
             .gallery-hero { padding: 2rem 0 1.5rem; }
             .hero-pull-quote { font-size: 1.5rem; }
@@ -1637,7 +1685,8 @@
             .insight-stat-card::before,
             .chart-card::before { transition: none; }
             .hero-pull-quote, .hero-quote-attr, .hero-quote-sub,
-            .insight-stat-card, .chart-card { animation: none; }
+            .insight-stat-card, .chart-card,
+            .golden-card, .screen-guide { animation: none; }
             .hero-fork-svg path { stroke-dashoffset: 0 !important; animation: none !important; }
             .hero-fork-svg path.branch-b { stroke-dasharray: 4 6 !important; }
         }
@@ -2092,6 +2141,11 @@
                         <blockquote class="hero-pull-quote" v-if="heroQuote">"{{ heroQuote.quote }}"</blockquote>
                         <p class="hero-quote-attr" v-if="heroQuote">— 摘自《{{ heroQuote.title }}》的复盘</p>
                         <p class="hero-quote-sub">AI 能帮你做决定，但只有你自己能复盘。这里记着你选了什么、没选什么，过阵子回来翻翻，当时想的对不对。</p>
+                        <div class="golden-card">
+                            <p class="golden-label">一句话</p>
+                            <p class="golden-line">你只管选，时间负责批改。</p>
+                            <p class="golden-sub">有些是满分，有些是错题——但每一条都算数，翻回去才知道当时想对了没有。</p>
+                        </div>
                     </div>
                     <div class="hero-right">
                         <div class="hero-fork-wrap">
@@ -2118,6 +2172,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 画廊首屏引导 -->
+                <p class="screen-guide"><strong>你在看：</strong>你做过的全部抉择，按时间倒序排开。点开任意一张，能看到当时怎么想、最后怎样、有没有写复盘。</p>
 
                 <!-- 洞察下钻筛选提示条 -->
                 <div v-if="drillFilterIds.length" class="drill-banner">
@@ -2629,6 +2686,8 @@
                 <h2 class="text-2xl font-bold">数据洞察</h2>
                 <button @click="goHome" class="text-amber hover:underline text-sm font-medium">返回画廊</button>
             </div>
+
+            <p class="screen-guide"><strong>你在看：</strong>你记下的抉择被算成了数字——一共做了几个选择、当时多有把握、结果好不好。点下面任意一条结论，会跳回对应的那条抉择。</p>
 
             <div v-if="records.length === 0" class="insights-empty">
                 <p class="text-lg mb-2">还没有记录</p>
