@@ -1610,6 +1610,89 @@
             font-weight: 600;
         }
 
+        /* ---- 新增：时间线节点 hover 悬浮提示（不改 SVG 内部） ---- */
+        .timeline-dot::after {
+            content: attr(data-preview);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 10px);
+            transform: translateX(-50%) translateY(4px);
+            background: rgba(35, 35, 46, 0.96);
+            border: 1px solid rgba(226, 184, 142, 0.35);
+            color: #E8E8F0;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            padding: 5px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 12px rgba(196, 123, 75, 0.12);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 40;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 4px);
+            transform: translateX(-50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            background: rgba(35, 35, 46, 0.96);
+            border-right: 1px solid rgba(226, 184, 142, 0.35);
+            border-bottom: 1px solid rgba(226, 184, 142, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 40;
+            transition: opacity 0.18s ease;
+        }
+        .timeline-dot:hover::after,
+        .timeline-dot:hover::before {
+            opacity: 1;
+        }
+        .timeline-dot:hover::after {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ---- 新增：边角统计面板 ---- */
+        .stats-panel {
+            background: rgba(42, 42, 54, 0.9);
+            border: 1px solid rgba(226, 184, 142, 0.22);
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 16px rgba(196, 123, 75, 0.10);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: heroQuoteIn 0.5s ease-out 0.2s both;
+        }
+        .stats-panel .stat-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .stats-panel .stat-num {
+            font-family: 'LXGW WenKai', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #E2B88E;
+        }
+
+        /* ---- 新增：首次访问介绍弹窗 ---- */
+        .intro-overlay {
+            animation: heroQuoteIn 0.35s ease-out both;
+        }
+        .intro-card {
+            background: rgba(35, 35, 46, 0.97);
+            border: 1px solid rgba(226, 184, 142, 0.28);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(196, 123, 75, 0.12);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
         /* ---- 分区标题：此路彼路 / 回望岔口 ---- */
         .partition-head {
             margin-bottom: 1.4rem;
@@ -2147,6 +2230,7 @@
                     <button @click="goInsights" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">数据洞察</button>
                     <button @click="currentPage = 'create'" class="px-4 py-1.5 bg-amber text-white rounded-md hover:bg-amber/90 transition text-sm font-medium">新建抉择</button>
                     <button @click="currentPage = 'about'" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">关于</button>
+                    <button @click="exportAllData" class="px-4 py-1.5 border border-ink/20 rounded-md hover:bg-ink/5 transition text-sm font-medium">导出数据</button>
                 </nav>
             </div>
         </header>
@@ -2162,9 +2246,9 @@
                         <circle cx="14" cy="10" r="2.5" fill="#9ca3af" opacity="0.4"/>
                         <circle cx="42" cy="10" r="2.5" fill="#C47B4B" opacity="0.5"/>
                     </svg>
-                    <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">还没有记录</p>
-                    <p class="text-gray-500 text-sm mb-6">记下你做过的一个选择，以及没做的那个</p>
-                    <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+                    <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">暂无抉择记录</p>
+                    <p class="text-gray-500 text-sm mb-6">点击新建抉择，开始记录你的决策</p>
+                    <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">新建抉择</button>
                 </div>
             </div>
 
@@ -2634,8 +2718,8 @@
                         <circle cx="42" cy="10" r="2.5" fill="#C47B4B" opacity="0.5"/>
                     </svg>
                     <p class="text-amber text-base mb-1 glow-amber" style="opacity:0.7">暂无抉择记录</p>
-                    <p class="text-gray-500 text-sm mb-6">先去创建一条吧</p>
-                    <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">创建第一条记录</button>
+                    <p class="text-gray-500 text-sm mb-6">点击新建抉择，开始记录你的决策</p>
+                    <button @click="currentPage = 'create'" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium">新建抉择</button>
                 </div>
             </div>
 
@@ -2651,7 +2735,7 @@
                          :class="index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
                          @click="goToDetail(record.id)">
                         <!-- 时间轴节点圆点 -->
-                        <div class="absolute left-6 md:left-1/2 w-3 h-3 bg-amber rounded-full -translate-x-1/2 z-10 group-hover:scale-150 transition-transform" :data-preview="record.title"></div>
+                        <div class="absolute left-6 md:left-1/2 w-3 h-3 bg-amber rounded-full -translate-x-1/2 z-10 group-hover:scale-150 transition-transform timeline-dot" :data-preview="record.title"></div>
 
                         <!-- 桌面端日期标记 -->
                         <div class="hidden md:block w-1/2"
@@ -2904,6 +2988,36 @@
                 </div>
             </div>
         </div>
+
+        <!-- 新增：边角统计面板（纯文本，无图表） -->
+        <div v-if="statsPanel.total > 0" class="stats-panel fixed bottom-4 right-4 z-30 px-4 py-3 text-xs select-none" style="min-width:190px">
+            <p class="font-medium mb-2 tracking-wide" style="color:#858595">抉择快照</p>
+            <div class="stat-row mb-1.5">
+                <span style="color:#A9A9B8">总抉择条数</span>
+                <span class="stat-num">{{ statsPanel.total }}</span>
+            </div>
+            <div class="stat-row mb-1.5">
+                <span style="color:#A9A9B8">高信心决策（≥8）</span>
+                <span class="stat-num">{{ statsPanel.high }}</span>
+            </div>
+            <div class="stat-row">
+                <span style="color:#A9A9B8">预期与现实偏差</span>
+                <span class="stat-num">{{ statsPanel.deviation }}</span>
+            </div>
+        </div>
+
+        <!-- 新增：首次访问介绍弹窗（勾选"不再提示"后本地记住） -->
+        <div v-if="showIntro" class="intro-overlay fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4">
+            <div class="intro-card rounded-2xl p-7 max-w-md w-full">
+                <h3 class="text-xl font-bold mb-3" style="color:#E2B88E">欢迎来到回声</h3>
+                <p class="text-sm leading-relaxed mb-4" style="color:#E8E8F0">这里是一个<b>决策复盘工具</b>——把每一次「选了 A 还是 B」、当时的把握、最后的结果记下来。</p>
+                <p class="text-sm leading-relaxed mb-5" style="color:#A9A9B8">过段时间回来翻一翻，你会看到自己哪些判断靠谱、哪些只是自我感觉良好。让每一次选择，都回应未来的自己。</p>
+                <label class="flex items-center gap-2 text-xs mb-5 cursor-pointer" style="color:#A9A9B8">
+                    <input type="checkbox" v-model="introDontShow" class="w-4 h-4 accent-amber"> 不再提示
+                </label>
+                <button @click="closeIntro" class="w-full py-2.5 text-white rounded-md hover:opacity-90 transition font-medium" style="background:#C47B4B">开始记录</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -3001,7 +3115,10 @@
                         endTag: '',
                         customEndTag: '',
                         domain: '',
-                    }
+                    },
+                    // 新增：首次访问介绍弹窗
+                    showIntro: false,
+                    introDontShow: false,
                 };
             },
             computed: {
@@ -3011,6 +3128,14 @@
                 // 新增：按创建日期从旧到新排序的全局时间线数据
                 sortedRecords() {
                     return [...this.records].sort((a, b) => a.createDate.localeCompare(b.createDate));
+                },
+                // 新增：边角统计面板数据（纯文本统计）
+                statsPanel() {
+                    const all = this.records || [];
+                    const high = all.filter(r => Number(r.confidence) >= 8).length;
+                    const deviationSet = new Set(['留有遗憾', '意料之外', '得失参半', '事与愿违']);
+                    const deviation = all.filter(r => deviationSet.has(r.endTag)).length;
+                    return { total: all.length, high: high, deviation: deviation };
                 },
                 // 新增：详情页信心圆点（CSS渲染，替代emoji）
                 confidenceStars() {
@@ -3268,6 +3393,27 @@
                 loadRecords() {
                     this.records = getAllRecords();
                 },
+                // 新增：导出全部数据为 JSON 备份文件（只导出，不导入）
+                exportAllData() {
+                    const all = getAllRecords();
+                    const stamp = new Date().toISOString().slice(0, 10);
+                    const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '回声-抉择记录备份-' + stamp + '.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                },
+                // 新增：关闭首次访问介绍弹窗（勾选"不再提示"则记住）
+                closeIntro() {
+                    if (this.introDontShow) {
+                        localStorage.setItem('huisheng_intro_dismissed_v1', '1');
+                    }
+                    this.showIntro = false;
+                },
                 // 演示数据种子：首次加载种入5条高质量示例抉择
                 seedDemoData() {
                     var demos = [
@@ -3410,6 +3556,20 @@
                             confidence: 3,
                             domain: '人际',
                             createDate: '2026-08-15T20:00:00.000Z'
+                        },
+                        {
+                            title: '赌一把：放弃稳的选题，冲大创国家级',
+                            situation: '大创项目选题会，导师给了两个方向：一个是稳妥的校级课题，基本确定能立项；另一个是前沿方向，导师明说"不确定能不能过审"。同组都在劝我选稳的。',
+                            optionAName: '冲前沿方向',
+                            expectA: '觉得评委就吃"新"这一套，立意新颖肯定加分，而且我调研做了两周，十拿九稳',
+                            resultA: '选题被毙了。评委意见写着"落地性不足，缺乏可行路径"。反而隔壁选稳妥题的同学顺利立项，还拿了经费。',
+                            optionBName: '选稳妥课题',
+                            imagineB: '稳是稳，但太普通，觉得没亮点、没意思',
+                            note: '落差最大的一次。当时信心拉满到九分，以为"新=赢"，结果评委要的是"能落地"。复盘才明白：我把自信当成了事实，把"我觉得稳"当成了"它真的稳"。高信心不是胜率，只是我的主观感觉——这正是我需要记录它的原因。',
+                            endTag: '意料之外',
+                            confidence: 9,
+                            domain: '学业',
+                            createDate: '2026-08-18T09:30:00.000Z'
                         }
                     ];
                     demos.forEach(function(d) {
@@ -3754,6 +3914,10 @@
                     this.seedDemoData();
                 }
                 this.loadRecords();
+                // 新增：首次访问介绍弹窗（勾选"不再提示"后不再弹出）
+                if (!localStorage.getItem('huisheng_intro_dismissed_v1')) {
+                    this.showIntro = true;
+                }
                 // 初始化 Lenis 平滑滚动
                 if (typeof Lenis !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     this.lenis = new Lenis({
