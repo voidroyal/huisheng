@@ -1787,6 +1787,16 @@
             -webkit-backdrop-filter: blur(14px);
         }
 
+        /* ---- 新增：关于页玻璃容器（提升背景对比度，冷暖主题自适应） ---- */
+        .about-glass {
+            background: rgba(var(--glass-deep-rgb), 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(169, 169, 184, 0.14);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        }
+
         /* ---- 分区标题：此路彼路 / 回望岔口 ---- */
         .partition-head {
             margin-bottom: 1.4rem;
@@ -2776,24 +2786,26 @@
             </div>
         </main>
 
-        <!-- 极简关于页面（原有逻辑完全保留） -->
+        <!-- 极简关于页面（原有逻辑完全保留，内容包一层玻璃容器提升可读性） -->
         <main v-if="currentPage === 'about'" class="flex-1 max-w-2xl mx-auto px-4 py-16 text-center w-full">
-            <h1 class="text-3xl font-bold mb-4">回声</h1>
-            <p class="text-lg text-gray-600 mb-2">让每一次选择，都回应未来的自己</p>
-            <p class="text-gray-500 mb-8 leading-relaxed">
-                AI 能帮你做决定，但只有你自己能复盘。<br>
-                这里记着你选过的、没选过的，过阵子回来翻翻，当时想的对不对——<br>
-                错了也不怕——这本子，就是用来改的。
-            </p>
-            <div class="mt-8 pt-8 border-t border-gray-200 text-left max-w-xl mx-auto">
-                <h2 class="text-xl font-bold mb-3">这是什么</h2>
-                <p class="text-gray-600 mb-5 leading-relaxed">回声是一个帮你向后复盘的「决策手记」。大多数效率工具帮你向前规划，它反过来——帮你向后复盘：把每一次"选了 A 还是 B"、当时的把握、最后的结果记下来，过段时间回来翻，看当时想的对不对。</p>
-                <h2 class="text-xl font-bold mb-3">为什么做</h2>
-                <p class="text-gray-600 mb-5 leading-relaxed">我们每天都在做选择，却很少回头验证选择的质量。种子数据来自一名嵌入式专业大一学生的真实经历：去哪所大学、去不去实习、要不要把话说出口……错题本让"成长"变得可被看见、可被纠正。</p>
-                <h2 class="text-xl font-bold mb-3">评委可以怎么玩</h2>
-                <p class="text-gray-600 leading-relaxed">① 打开画廊，翻翻这些带着毛边的真实抉择；② 点「创建」亲手记一条自己的选择；③ 去「洞察」页看图表，点结论能下钻到对应抉择；④ 「关于」里讲清楚了它和"向前引导"类产品的差异。</p>
+            <div class="about-glass mx-auto max-w-xl px-8 py-10">
+                <h1 class="text-3xl font-bold mb-4">回声</h1>
+                <p class="text-lg text-gray-600 mb-2">让每一次选择，都回应未来的自己</p>
+                <p class="text-gray-500 mb-8 leading-relaxed">
+                    AI 能帮你做决定，但只有你自己能复盘。<br>
+                    这里记着你选过的、没选过的，过阵子回来翻翻，当时想的对不对——<br>
+                    错了也不怕——这本子，就是用来改的。
+                </p>
+                <div class="mt-8 pt-8 border-t border-gray-200 text-left">
+                    <h2 class="text-xl font-bold mb-3">这是什么</h2>
+                    <p class="text-gray-600 mb-5 leading-relaxed">回声是一个帮你向后复盘的「决策手记」。大多数效率工具帮你向前规划，它反过来——帮你向后复盘：把每一次"选了 A 还是 B"、当时的把握、最后的结果记下来，过段时间回来翻，看当时想的对不对。</p>
+                    <h2 class="text-xl font-bold mb-3">为什么做</h2>
+                    <p class="text-gray-600 mb-5 leading-relaxed">我们每天都在做选择，却很少回头验证选择的质量。种子数据来自一名嵌入式专业大一学生的真实经历：去哪所大学、去不去实习、要不要把话说出口……错题本让"成长"变得可被看见、可被纠正。</p>
+                    <h2 class="text-xl font-bold mb-3">评委可以怎么玩</h2>
+                    <p class="text-gray-600 leading-relaxed">① 打开画廊，翻翻这些带着毛边的真实抉择；② 点「创建」亲手记一条自己的选择；③ 去「洞察」页看图表，点结论能下钻到对应抉择；④ 「关于」里讲清楚了它和"向前引导"类产品的差异。</p>
+                </div>
+                <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium mt-8">返回画廊</button>
             </div>
-            <button @click="goHome" class="px-6 py-2.5 bg-amber text-white rounded-md hover:bg-amber/90 transition font-medium mt-8">返回画廊</button>
         </main>
 
         <!-- 新增：全局总时间线页面 -->
