@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="回声 - 让每一次选择，都回应未来的自己。">
+  <title>回声 | 入口预览</title>
+  <style>
+    :root {
+      --echo-ink: #171720;
+      --echo-ink-deep: #12121a;
+      --echo-paper: #e8e8f0;
+      --echo-muted: rgba(224, 220, 225, 0.62);
+      --echo-amber: #c47b4b;
+      --echo-amber-light: #dfaa79;
+      --echo-line: rgba(221, 161, 113, 0.22);
+      --pointer-x: 50%;
+      --pointer-y: 48%;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--echo-ink);
+      color: var(--echo-paper);
+      font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    }
+
+    body.echo-entry-active { overflow: hidden; }
+
+    button { font: inherit; }
+
+    .echo-product-frame {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--echo-ink);
+      opacity: 0;
+      transition: opacity 0.42s ease;
+    }
+
+    .echo-product-frame.is-visible { opacity: 1; }
+
+    .echo-entry {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      isolation: isolate;
+      display: grid;
+      place-items: center;
+      min-height: 100svh;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 42% 28% at var(--pointer-x) var(--pointer-y), rgba(219, 144, 91, 0.085), transparent 72%),
+        radial-gradient(ellipse 46% 25% at 50% 68%, rgba(183, 91, 42, 0.12), transparent 73%),
+        linear-gradient(180deg, #191922 0%, #171720 47%, #13131b 100%);
+      transition: opacity 0.44s ease, visibility 0.44s step-end;
+    }
+
+    .echo-entry::before,
+    .echo-entry::after {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+    }
+
+    .echo-entry::before {
+      opacity: 0.72;
+      background:
+        linear-gradient(90deg, transparent 0 7%, rgba(224, 177, 137, 0.06) 25%, transparent 47%, rgba(224, 177, 137, 0.045) 69%, transparent 91%),
+        repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 255, 255, 0.014) 3px 4px);
+      mask-image: linear-gradient(180deg, transparent 0%, #000 19%, #000 80%, transparent 100%);
+    }
+
+    .echo-entry::after {
+      opacity: 0.34;
+      background:
+        radial-gradient(circle at 50% 52%, transparent 0 23%, rgba(221, 158, 111, 0.03) 24% 24.1%, transparent 24.4% 35%, rgba(221, 158, 111, 0.025) 35.1% 35.25%, transparent 35.5% 100%);
+      transform: scale(1.15);
+    }
+
+    .echo-entry-horizon,
+    .echo-entry-grid,
+    .echo-entry-noise,
+    .echo-entry-vignette {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .echo-entry-horizon {
+      top: 55%;
+      background:
+        linear-gradient(180deg, transparent 0%, rgba(184, 96, 48, 0.055) 31%, rgba(196, 123, 75, 0.11) 44%, rgba(112, 57, 36, 0.07) 74%, transparent 100%),
+        radial-gradient(ellipse 40% 29% at 50% 30%, rgba(228, 164, 108, 0.12), transparent 70%);
+      filter: blur(0.1px);
+    }
+
+    .echo-entry-grid {
+      top: 69%;
+      opacity: 0.28;
+      transform: perspective(420px) rotateX(58deg) scale(1.6, 1.2);
+      transform-origin: center top;
+      background-image:
+        linear-gradient(rgba(202, 121, 70, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(202, 121, 70, 0.16) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, transparent, #000 21%, transparent 88%);
+    }
+
+    .echo-entry-noise {
+      opacity: 0.052;
+      background-image: repeating-radial-gradient(circle at 0 0, #fff 0 0.6px, transparent 0.8px 3px);
+      background-size: 5px 5px;
+      mix-blend-mode: soft-light;
+    }
+
+    .echo-entry-vignette {
+      background: radial-gradient(ellipse at center, transparent 32%, rgba(8, 8, 12, 0.28) 100%);
+    }
+
+    .echo-entry-stage {
+      position: relative;
+      width: min(1080px, 100vw);
+      height: min(760px, 100svh);
+      display: grid;
+      place-items: center;
+    }
+
+    .echo-entry-ripples {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(940px, 94vw);
+      height: auto;
+      overflow: visible;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .echo-entry-ripples ellipse {
+      transform-box: fill-box;
+      transform-origin: center;
+      fill: none;
+      stroke: var(--echo-amber);
+      vector-effect: non-scaling-stroke;
+    }
+
+    .echo-entry-ripples .ripple-one { --ripple-opacity: 0.25; stroke-width: 0.8; opacity: 0.25; animation: echo-breathe 11s ease-in-out infinite; }
+    .echo-entry-ripples .ripple-two { --ripple-opacity: 0.15; stroke-width: 0.75; opacity: 0.15; animation: echo-breathe 11s 1.2s ease-in-out infinite; }
+    .echo-entry-ripples .ripple-three { --ripple-opacity: 0.1; stroke-width: 0.65; opacity: 0.1; animation: echo-breathe 11s 2.3s ease-in-out infinite; }
+    .echo-entry-ripples .ripple-four { --ripple-opacity: 0.07; stroke-width: 0.55; opacity: 0.07; animation: echo-breathe 11s 3.4s ease-in-out infinite; }
+    .echo-entry-ripples .ripple-fade { stroke: rgba(181, 173, 178, 0.62); stroke-dasharray: 3 10; stroke-width: 0.65; opacity: 0.12; }
+
+    .echo-entry-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      width: min(540px, calc(100vw - 40px));
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .echo-entry-origin {
+      width: 7px;
+      height: 7px;
+      margin-bottom: 23px;
+      border-radius: 50%;
+      background: #e4b181;
+      box-shadow: 0 0 0 6px rgba(201, 123, 75, 0.08), 0 0 22px rgba(213, 134, 77, 0.18);
+      animation: origin-pulse 4.8s ease-in-out infinite;
+    }
+
+    .echo-entry-title {
+      margin: 0;
+      color: var(--echo-paper);
+      font-size: clamp(45px, 6.2vw, 78px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-indent: 0.08em;
+      text-shadow: 0 1px 22px rgba(0, 0, 0, 0.22);
+      animation: content-arrive 0.9s 0.08s both cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .echo-entry-subtitle {
+      max-width: 30em;
+      margin: 22px 0 0;
+      color: rgba(232, 232, 240, 0.72);
+      font-size: clamp(15px, 1.45vw, 19px);
+      font-weight: 300;
+      line-height: 1.7;
+      letter-spacing: 0.12em;
+      text-indent: 0.12em;
+      animation: content-arrive 0.9s 0.22s both cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .echo-entry-enter {
+      position: relative;
+      display: inline-flex;
+      min-width: 178px;
+      height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      margin-top: 42px;
+      padding: 0 21px;
+      overflow: hidden;
+      border: 1px solid rgba(224, 173, 129, 0.45);
+      border-radius: 2px;
+      color: rgba(247, 242, 239, 0.95);
+      background: rgba(33, 28, 29, 0.36);
+      box-shadow: inset 0 1px 0 rgba(255, 239, 222, 0.08), 0 12px 30px rgba(5, 5, 8, 0.12);
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: border-color 0.35s ease, background-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+      animation: content-arrive 0.9s 0.38s both cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .echo-entry-enter::before {
+      position: absolute;
+      inset: -1px;
+      content: "";
+      opacity: 0;
+      background: linear-gradient(105deg, transparent 22%, rgba(231, 193, 163, 0.22) 50%, transparent 78%);
+      transform: translateX(-115%);
+      transition: transform 0.7s ease, opacity 0.3s ease;
+    }
+
+    .echo-entry-enter:hover,
+    .echo-entry-enter:focus-visible {
+      border-color: rgba(237, 189, 147, 0.8);
+      background: rgba(121, 70, 47, 0.3);
+      box-shadow: inset 0 1px 0 rgba(255, 239, 222, 0.16), 0 0 0 4px rgba(203, 124, 76, 0.07), 0 18px 44px rgba(5, 5, 8, 0.2);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .echo-entry-enter:hover::before,
+    .echo-entry-enter:focus-visible::before { opacity: 1; transform: translateX(115%); }
+
+    .echo-entry-enter span { position: relative; z-index: 1; }
+    .echo-entry-arrow { color: var(--echo-amber-light); font-size: 18px; line-height: 0; transition: transform 0.35s ease; }
+    .echo-entry-enter:hover .echo-entry-arrow { transform: translateX(3px); }
+
+    .echo-entry-hover-ring,
+    .echo-entry-transition-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(250px, 47vw);
+      aspect-ratio: 1;
+      border: 1px solid rgba(220, 157, 108, 0.26);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.78);
+    }
+
+    .echo-entry-content:hover .echo-entry-hover-ring { animation: hover-ripple 2.6s ease-out infinite; }
+
+    .echo-entry-transition-ring {
+      z-index: 3;
+      width: 80px;
+      border-color: rgba(239, 184, 136, 0.72);
+      box-shadow: 0 0 44px rgba(195, 104, 55, 0.12);
+    }
+
+    .echo-entry-keywords {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      z-index: 4;
+      width: min(500px, 88vw);
+      height: min(500px, 88vw);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .echo-entry-keywords li {
+      position: absolute;
+      color: rgba(239, 224, 212, 0.8);
+      font-size: clamp(12px, 1.1vw, 15px);
+      letter-spacing: 0.14em;
+      opacity: 0;
+    }
+
+    .echo-entry-keywords li:nth-child(1) { top: 15%; left: 50%; transform: translateX(-50%); }
+    .echo-entry-keywords li:nth-child(2) { top: 49%; right: 10%; }
+    .echo-entry-keywords li:nth-child(3) { bottom: 14%; left: 50%; transform: translateX(-50%); }
+    .echo-entry-keywords li:nth-child(4) { top: 49%; left: 10%; }
+
+    .echo-entry-footer {
+      position: absolute;
+      right: clamp(20px, 4vw, 62px);
+      bottom: clamp(18px, 3vw, 42px);
+      z-index: 2;
+      color: rgba(232, 232, 240, 0.34);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      user-select: none;
+    }
+
+    .echo-entry.is-transitioning .echo-entry-content > :not(.echo-entry-transition-ring):not(.echo-entry-keywords) {
+      animation: entry-copy-leave 0.44s 0.03s both ease-in;
+    }
+
+    .echo-entry.is-transitioning .echo-entry-ripples { animation: stage-recede 1.05s both cubic-bezier(0.22, 0.7, 0.18, 1); }
+    .echo-entry.is-transitioning .echo-entry-transition-ring { animation: transition-ripple 1.02s both cubic-bezier(0.16, 0.8, 0.2, 1); }
+    .echo-entry.is-transitioning .echo-entry-keywords li { animation: keyword-flicker 0.72s both cubic-bezier(0.16, 1, 0.3, 1); }
+    .echo-entry.is-transitioning .echo-entry-keywords li:nth-child(1) { animation-delay: 0.11s; }
+    .echo-entry.is-transitioning .echo-entry-keywords li:nth-child(2) { animation-delay: 0.17s; }
+    .echo-entry.is-transitioning .echo-entry-keywords li:nth-child(3) { animation-delay: 0.23s; }
+    .echo-entry.is-transitioning .echo-entry-keywords li:nth-child(4) { animation-delay: 0.29s; }
+    .echo-entry.is-transitioning .echo-entry-footer { opacity: 0; transition: opacity 0.25s ease; }
+
+    .echo-entry.is-complete {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @keyframes content-arrive {
+      from { opacity: 0; transform: translateY(16px); filter: blur(3px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @keyframes echo-breathe {
+      0%, 100% { transform: scale(0.985); opacity: var(--ripple-opacity, 0.14); }
+      50% { transform: scale(1.015); opacity: calc(var(--ripple-opacity, 0.14) + 0.06); }
+    }
+
+    @keyframes origin-pulse {
+      0%, 100% { box-shadow: 0 0 0 6px rgba(201, 123, 75, 0.08), 0 0 22px rgba(213, 134, 77, 0.18); }
+      48% { box-shadow: 0 0 0 10px rgba(201, 123, 75, 0.015), 0 0 27px rgba(213, 134, 77, 0.26); }
+    }
+
+    @keyframes hover-ripple {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+      22% { opacity: 0.32; }
+      72%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.28); }
+    }
+
+    @keyframes entry-copy-leave {
+      to { opacity: 0; transform: translateY(-10px); filter: blur(2px); }
+    }
+
+    @keyframes stage-recede {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      52% { opacity: 0.85; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
+    }
+
+    @keyframes transition-ripple {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.15); }
+      10% { opacity: 0.92; }
+      65% { opacity: 0.42; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(35); }
+    }
+
+    @keyframes keyword-flicker {
+      0% { opacity: 0; filter: blur(3px); }
+      28% { opacity: 0.88; filter: blur(0); }
+      62% { opacity: 0.58; }
+      100% { opacity: 0; transform: translateY(-8px); filter: blur(2px); }
+    }
+
+    @media (max-width: 640px) {
+      .echo-entry-stage { height: min(680px, 100svh); }
+      .echo-entry-ripples { width: 148vw; }
+      .echo-entry-horizon { top: 57%; }
+      .echo-entry-grid { top: 72%; opacity: 0.18; }
+      .echo-entry-title { font-size: clamp(42px, 13vw, 57px); }
+      .echo-entry-subtitle { max-width: 18em; font-size: 15px; line-height: 1.8; }
+      .echo-entry-enter { width: min(220px, 80vw); margin-top: 38px; }
+      .echo-entry-keywords { width: 78vw; height: 78vw; }
+      .echo-entry-keywords li { font-size: 12px; }
+      .echo-entry-footer { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      .echo-entry-ripples { opacity: 0.78; }
+      .echo-entry-hover-ring, .echo-entry-transition-ring, .echo-entry-keywords { display: none; }
+    }
+  </style>
+</head>
+<body class="echo-entry-active">
+  <!-- The deployed product is loaded unchanged behind the local entrance layer. -->
+  <iframe
+    id="echo-product-frame"
+    class="echo-product-frame"
+    title="回声"
+    aria-hidden="true">
+  </iframe>
+
+  <main id="echo-entry" class="echo-entry" aria-label="回声入口">
+    <div class="echo-entry-horizon"></div>
+    <div class="echo-entry-grid"></div>
+    <div class="echo-entry-noise"></div>
+    <div class="echo-entry-vignette"></div>
+
+    <section class="echo-entry-stage" aria-labelledby="echo-entry-title">
+      <svg class="echo-entry-ripples" viewBox="0 0 1080 760" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+        <ellipse class="ripple-four" cx="540" cy="380" rx="487" ry="270"></ellipse>
+        <ellipse class="ripple-three" cx="540" cy="380" rx="383" ry="212"></ellipse>
+        <ellipse class="ripple-two" cx="540" cy="380" rx="276" ry="153"></ellipse>
+        <ellipse class="ripple-one" cx="540" cy="380" rx="172" ry="95"></ellipse>
+        <ellipse class="ripple-fade" cx="540" cy="380" rx="455" ry="252"></ellipse>
+      </svg>
+
+      <div class="echo-entry-content">
+        <span class="echo-entry-hover-ring" aria-hidden="true"></span>
+        <span class="echo-entry-transition-ring" aria-hidden="true"></span>
+        <ul class="echo-entry-keywords" aria-hidden="true">
+          <li>选择</li>
+          <li>信心</li>
+          <li>结果</li>
+          <li>复盘</li>
+        </ul>
+        <span class="echo-entry-origin" aria-hidden="true"></span>
+        <h1 id="echo-entry-title" class="echo-entry-title">回声</h1>
+        <p class="echo-entry-subtitle">让每一次选择，都回应未来的自己</p>
+        <button id="echo-entry-button" class="echo-entry-enter" type="button" aria-label="进入我的回声">
+          <span>进入我的回声</span><span class="echo-entry-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+
+    <span class="echo-entry-footer" aria-hidden="true">ECHOS OF CHOICE</span>
+  </main>
+
+  <script>
+    (() => {
+      const entry = document.getElementById('echo-entry');
+      const enterButton = document.getElementById('echo-entry-button');
+      const productFrame = document.getElementById('echo-product-frame');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let entering = false;
+      let pointerFrame = 0;
+      let pointerX = 50;
+      let pointerY = 48;
+
+      // 加载主应用：本地 file:// 直接加载线上版；线上部署则加载同源根路径（换域名也自动跟随）
+      productFrame.src = location.protocol === 'file:' ? 'https://echo-alpha-wine.vercel.app/' : './';
+
+      const paintPointerLight = () => {
+        entry.style.setProperty('--pointer-x', `${pointerX}%`);
+        entry.style.setProperty('--pointer-y', `${pointerY}%`);
+        pointerFrame = 0;
+      };
+
+      const updatePointerLight = (event) => {
+        if (reducedMotion || entering) return;
+        pointerX = Math.round((event.clientX / window.innerWidth) * 100);
+        pointerY = Math.round((event.clientY / window.innerHeight) * 100);
+        if (!pointerFrame) pointerFrame = window.requestAnimationFrame(paintPointerLight);
+      };
+
+      const startTransition = () => {
+        if (entering) return;
+        entering = true;
+        enterButton.disabled = true;
+        entry.classList.add('is-transitioning');
+        productFrame.classList.add('is-visible');
+        productFrame.setAttribute('aria-hidden', 'false');
+
+        window.setTimeout(() => {
+          entry.classList.add('is-complete');
+          document.body.classList.remove('echo-entry-active');
+        }, reducedMotion ? 80 : 1060);
+      };
+
+      const enterEcho = () => {
+        if (entering) return;
+        // 慢网兜底：主应用未加载完成就先等它，最多 4 秒，避免进入后白屏
+        if (productFrame.dataset.loaded === 'true') { startTransition(); return; }
+        let done = false;
+        const go = () => { if (!done) { done = true; startTransition(); } };
+        productFrame.addEventListener('load', go, { once: true });
+        window.setTimeout(go, 4000);
+      };
+
+      entry.addEventListener('pointermove', updatePointerLight, { passive: true });
+      enterButton.addEventListener('click', enterEcho);
+      productFrame.addEventListener('load', () => productFrame.dataset.loaded = 'true', { once: true });
+    })();
+  </script>
+</body>
+</html>
